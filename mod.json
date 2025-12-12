@@ -1,0 +1,21 @@
+{
+	"geode": "4.9.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "maskagd.ShaderVisualizer",
+	"name": "Shader Visualizer",
+	"version": "v1.0.0",
+	"developer": "maskagd",
+	"description": "Shader Visualizer",
+	"resources": {
+		"sprites": [
+			"resources/*.png"
+		]
+	},
+	"tags": ["editor", "offline", "customization"]
+
+}
