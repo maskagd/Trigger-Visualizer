@@ -7,13 +7,8 @@
 		"ios": "2.2074"
 	},
 	"id": "maskagd.shader_visualizer",
-<<<<<<< HEAD
 	"name": "Trigger Visualizer",
-	"version": "v1.1.0",
-=======
-	"name": "Shader Visualizer",
-	"version": "v1.0.1",
->>>>>>> 3188017f2ae82a68be108c34ba22c9ef9418301d
+	"version": "v1.2.0",
 	"developer": "maskagd",
 	"description": "Trigger Visualizer",
 	"resources": {
@@ -24,32 +19,51 @@
 	"links": {
         "source": "https://github.com/maskag/Shader-Visualizer"
     },
-<<<<<<< HEAD
 	"tags": ["editor", "offline", "customization"],
 	"settings": {
         "trg-title": {
             "type": "title",
-            "name": "Triggers settings"
+            "name": "triggers texture settings"
         },
 		"do-default": {
 			"type": "bool",
-			"name": "New default triggers texture",
-			"description": "New textures for default triggers such as move, pulse, alpha, scale, etc",
+			"name": "Object edit triggers texture",
+			"description": "New textures for triggers such as move, pulse, alpha, scale, etc",
+			"default": true
+		},
+		"do-logic": {
+			"type": "bool",
+			"name": "logical triggers texture",
+			"description": "New textures for triggers such as spawn, count, random, collision, etc",
 			"default": true
 		},
 		"do-shader": {
 			"type": "bool",
-			"name": "New shader triggers texture",
+			"name": "Shader triggers texture",
+			"description": "New textures for shader triggers",
 			"default": true
 		},
 		"do-area": {
 			"type": "bool",
-			"name": "New area triggers texture",
+			"name": "Area triggers texture",
+			"description": "New textures for area triggers",
+			"default": true
+		},
+		"cam-title": {
+            "type": "title",
+            "name": "Cameras texture settings" 
+        },
+		"color-cam": {
+			"type": "bool",
+			"name": "Default color texture",
+			"description": "Restore the camera color to the standard",
+			"default": false
+		},
+		"do-cam": {
+			"type": "bool",
+			"name": "Cameras triggers texture",
+			"description": "New textures for Cameras triggers",
 			"default": true
 		}
     }
-=======
-	"tags": ["editor", "offline", "customization"]
->>>>>>> 3188017f2ae82a68be108c34ba22c9ef9418301d
-
 }

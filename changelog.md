@@ -12,8 +12,5 @@
 - Cross-platform release
 
 # 1.0.0
-<<<<<<< HEAD
 - Initial release
-=======
-- Initial release
->>>>>>> 3188017f2ae82a68be108c34ba22c9ef9418301d
+
