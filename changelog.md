@@ -1,6 +1,11 @@
+# 1.20
+- Added new cameras trigger texture
+- Added some new trigger texture
+- Added new settings
+
 # 1.10
 - Added new trigger texture:
-  - Object Edit triggers
+  - Gameplay triggers
   - Area triggers
   - Logical triggers
 - Added mod settings:
