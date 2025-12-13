@@ -27,8 +27,4 @@ This allows you to keep the default look for certain triggers (such as <cr>area<
 
 ### Notes
 - This mod only affects the **editor**.
-<<<<<<< HEAD
 - Gameplay behavior of triggers is not modified.
-=======
-- Gameplay behavior of triggers is not modified.
->>>>>>> 3188017f2ae82a68be108c34ba22c9ef9418301d
