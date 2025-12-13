@@ -43,9 +43,8 @@
 			"name": "New area triggers texture",
 			"default": true
 		}
-    }
-=======
+    },
+
 	"tags": ["editor", "offline", "customization"]
->>>>>>> 3188017f2ae82a68be108c34ba22c9ef9418301d
 
 }
