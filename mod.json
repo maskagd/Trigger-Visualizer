@@ -7,13 +7,10 @@
 		"ios": "2.2074"
 	},
 	"id": "maskagd.shader_visualizer",
-<<<<<<< HEAD
 	"name": "Trigger Visualizer",
 	"version": "v1.1.0",
-=======
 	"name": "Shader Visualizer",
-	"version": "v1.0.1",
->>>>>>> 3188017f2ae82a68be108c34ba22c9ef9418301d
+	"version": "v1.1.0",
 	"developer": "maskagd",
 	"description": "Trigger Visualizer",
 	"resources": {
@@ -24,7 +21,6 @@
 	"links": {
         "source": "https://github.com/maskag/Shader-Visualizer"
     },
-<<<<<<< HEAD
 	"tags": ["editor", "offline", "customization"],
 	"settings": {
         "trg-title": {
