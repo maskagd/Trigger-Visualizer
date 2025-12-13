@@ -6,16 +6,41 @@
 		"mac": "2.2074",
 		"ios": "2.2074"
 	},
-	"id": "maskagd.ShaderVisualizer",
-	"name": "Shader Visualizer",
-	"version": "v1.0.0",
+	"id": "maskagd.shader_visualizer",
+	"name": "Trigger Visualizer",
+	"version": "v1.1.0",
 	"developer": "maskagd",
-	"description": "Shader Visualizer",
+	"description": "Trigger Visualizer",
 	"resources": {
 		"sprites": [
 			"resources/*.png"
 		]
 	},
-	"tags": ["editor", "offline", "customization"]
+	"links": {
+        "source": "https://github.com/maskag/Shader-Visualizer"
+    },
+	"tags": ["editor", "offline", "customization"],
+	"settings": {
+        "trg-title": {
+            "type": "title",
+            "name": "Triggers settings"
+        },
+		"do-default": {
+			"type": "bool",
+			"name": "New default triggers texture",
+			"description": "New textures for default triggers such as move, pulse, alpha, scale, etc",
+			"default": true
+		},
+		"do-shader": {
+			"type": "bool",
+			"name": "New shader triggers texture",
+			"default": true
+		},
+		"do-area": {
+			"type": "bool",
+			"name": "New area triggers texture",
+			"default": true
+		}
+    }
 
 }
