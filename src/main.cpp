@@ -138,7 +138,6 @@ $execute {
     (void)Mod::get()->registerCustomSettingType("sprite-switch", &SpriteSwitchSettingV3::parse);
 }
 
-
 class $modify(SetupTriggerPopup) {
     void onClose(cocos2d::CCObject* sender) {
         this->applyChangesToObjects();
@@ -146,6 +145,8 @@ class $modify(SetupTriggerPopup) {
     }
 
      void applyChangesToObjects() {
+
+		auto offset_ev = Mod::get()->getSettingValue<float>("off-ev");
 
 		auto ev = getSwitchValue("dyn-ev");
 
@@ -161,90 +162,96 @@ class $modify(SetupTriggerPopup) {
             auto obj = static_cast<EffectGameObject*>(arr->objectAtIndex(i));
             if (!obj || obj->m_objectID != 3604) continue;
 
-            updateObjectTexture(typeinfo_cast<EventLinkTrigger*>(obj));
+            updateObjectTexture(typeinfo_cast<EventLinkTrigger*>(obj), offset_ev);
         }
     }
 
-	static void updateObjectTexture(EventLinkTrigger* obj) {
+	static void updateObjectTexture(EventLinkTrigger* obj, float gap = 10.f) {
 		if (!obj) return;
 
 		const auto& eids = obj->m_eventIDs;
-		const char* texture = "ev.png"_spr; 
-
-		for (int id : eids) {
-			if (id >= 1 && id <= 5) {
-				texture = "evland.png"_spr;
-				break;
-			} 
-			else if (id == 6) {
-				texture = "evhit.png"_spr;
-				break;
-			} 
-			else if (id == 7 || id == 8) {
-				texture = "evorb.png"_spr;
-				break;
-			} 
-			else if (id == 9) {
-				texture = "evpad.png"_spr;
-				break;
-			} 
-			else if (id == 10 || id == 11) {
-				texture = "evgravity.png"_spr;
-				break;
-			} 
-			else if (id >= 12 && id <= 22) {
-				texture = "evjump.png"_spr;
-				break;
-			} 
-			else if (id >= 34 && id <= 44) {
-				texture = "evorb.png"_spr;
-				break;
-			} 
-			else if (id >= 45 && id <= 49) {
-				texture = "evpad.png"_spr;
-				break;
-			} 
-			else if (id >= 50 && id <= 52) {
-				texture = "evgravity.png"_spr;
-				break;
-			} 
-			else if (id == 62 || id == 63) {
-				texture = "evcoin.png"_spr;
-				break;
-			} 
-			else if (id >= 65 && id <= 68) {
-				texture = "evfall.png"_spr;
-				break;
-			} 
-			else if (id == 69 || id == 70) {
-				texture = "evtop.png"_spr;
-				break;
-			} 
-			else if (id == 71 || id == 72) {
-				texture = "evleft.png"_spr;
-				break;
-			} 
-			else if (id == 73 || id == 74) {
-				texture = "evright.png"_spr;
-				break;
-			}
-			else if (id == 60 || id == 64) {
-				texture = "evsave.png"_spr;
-				break;
-			}
-			else if (id >= 26 && id <= 33 || id >= 50 && id <= 59) {
-				texture = "evportal.png"_spr;
-				break;
-			} 
-		}
-
 		
-		if (!texture) return;
+		std::vector<const char*> singleTextures;
+		std::vector<const char*> combinedTextures;
 
-		if (auto spr = CCSprite::create(texture)) {
-			obj->setTexture(spr->getTexture());
-			obj->setTextureRect(spr->getTextureRect());
+		auto addTex = [&](const char* s, const char* c) {
+			if (std::find(singleTextures.begin(), singleTextures.end(), s) == singleTextures.end()) {
+				singleTextures.push_back(s);
+				combinedTextures.push_back(c);
+			}
+		};
+
+		if (eids.empty()) {
+			addTex("ev.png"_spr, "evs.png"_spr);
+		} else {
+			for (int id : eids) {
+				if (id >= 1 && id <= 5) addTex("evland.png"_spr, "evlands.png"_spr);
+				else if (id == 6) addTex("evhit.png"_spr, "evhits.png"_spr);
+				else if ((id == 7 || id == 8) || (id >= 34 && id <= 44)) addTex("evorb.png"_spr, "evorbs.png"_spr);
+				else if ((id == 9) || (id >= 45 && id <= 49)) addTex("evpad.png"_spr, "evpads.png"_spr);
+				else if ((id == 10 || id == 11) || (id >= 50 && id <= 52)) addTex("evgravity.png"_spr, "evgravitys.png"_spr);
+				else if (id >= 12 && id <= 22) addTex("evjump.png"_spr, "evjumps.png"_spr);
+				else if (id == 62 || id == 63) addTex("evcoin.png"_spr, "evcoins.png"_spr);
+				else if (id >= 65 && id <= 68) addTex("evfall.png"_spr, "evfalls.png"_spr);
+				else if (id == 69) addTex("evtop.png"_spr, "evtops.png"_spr);
+				else if (id == 70) addTex("evup.png"_spr, "evups.png"_spr);
+				else if (id == 71) addTex("evleft.png"_spr, "evlefts.png"_spr);
+				else if (id == 72) addTex("evlef.png"_spr, "evlefs.png"_spr);
+				else if (id == 73) addTex("evright.png"_spr, "evrights.png"_spr);
+				else if (id == 74) addTex("evrig.png"_spr, "evrigs.png"_spr);
+				else if (id == 60 || id == 64) addTex("evsave.png"_spr, "evsaves.png"_spr);
+				else if ((id >= 26 && id <= 33) || (id >= 50 && id <= 59)) addTex("evportal.png"_spr, "evportals.png"_spr);
+				else addTex("ev.png"_spr, "evs.png"_spr);
+			}
 		}
+
+		if (singleTextures.size() == 1) {
+			if (auto spr = CCSprite::create(singleTextures[0])) {
+				obj->setTexture(spr->getTexture());
+				obj->setTextureRect(spr->getTextureRect());
+			}
+			return;
+		}
+
+		const char* tex1 = combinedTextures[0];
+		const char* tex2 = combinedTextures[1];
+		const char* textTex = "evtitles.png"_spr;
+
+		auto spr1 = CCSprite::create(tex1);
+		auto spr2 = CCSprite::create(tex2);
+		auto sprText = CCSprite::create(textTex);
+
+		if (!spr1 || !spr2 || !sprText) return;
+
+		float totalWidth = 100.0f; 
+		float totalHeight = 50.0f;
+		float cx = totalWidth / 2.0f;
+		float cy = totalHeight / 2.0f;
+
+		spr1->setFlipY(true);
+		spr2->setFlipY(true);
+		sprText->setFlipY(true);
+
+		sprText->setPosition({cx, cy});
+		spr1->setPosition({cx - gap, cy}); 
+		spr2->setPosition({cx + gap, cy});
+
+		auto rt = CCRenderTexture::create(totalWidth, totalHeight);
+		if (!rt) return;
+
+		rt->beginWithClear(0, 0, 0, 0);
+		spr1->visit();
+		spr2->visit();
+		sprText->visit();
+		rt->end();
+
+		auto tex = rt->getSprite()->getTexture();
+		
+		ccTexParams tp = {GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE};
+		tex->setTexParameters(&tp);
+
+		obj->setTexture(tex);
+		obj->setTextureRect({0, 0, totalWidth, totalHeight});
 	}
 };
 

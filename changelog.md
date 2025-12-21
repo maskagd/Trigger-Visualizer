@@ -1,3 +1,7 @@
+## v1.3.3
+- Added a new feature: when an Event trigger contains multiple actions that cannot be represented by a single texture, the mod now automatically combines multiple textures into one.
+- Added a new setting to enable or configure this texture-combination behavior.
+
 ## v1.3.2
 - Added *<cr>V</c><co>i</c><cy>S</c><cg>u</c><cj>A</c><cl>l</c>* settings 😎
 

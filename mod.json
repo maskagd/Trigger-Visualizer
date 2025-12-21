@@ -8,7 +8,7 @@
 	},
 	"id": "maskagd.shader_visualizer",
 	"name": "Trigger Visualizer",
-	"version": "v1.3.2",
+	"version": "v1.3.3",
 	"developer": "maskagd",
 	"description": "Trigger Visualizer",
 	"resources": {
@@ -120,6 +120,21 @@
             "default": true,
             "spr1": "ev.png",
             "spr2": "evland.png"
+        },
+        "off-ev": {
+            "type": "float",
+            "name": "Spacing between event textures",
+            "description": "Spacing between textures in an event trigger when the event uses two different actions that do not share a common texture",
+            "default": 7.5,
+            "min": 0.0,
+            "max": 15.0,
+            "controls": {
+                "arrows": true,
+                "arrow-step": 2.0,
+                "slider": true,
+                "slider-step": 1.0,
+                "input": true
+            }
         },
         "dyn-sfx": {
             "type": "custom:maskagd.shader_visualizer/sprite-switch",
