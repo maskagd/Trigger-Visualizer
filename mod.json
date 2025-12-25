@@ -8,7 +8,7 @@
 	},
 	"id": "maskagd.shader_visualizer",
 	"name": "Trigger Visualizer",
-	"version": "v1.3.3",
+	"version": "v1.4.0",
 	"developer": "maskagd",
 	"description": "Trigger Visualizer",
 	"resources": {
@@ -112,6 +112,22 @@
         "dynamic-title": {
             "type": "title",
             "name": "dynamic texture settings"
+        },
+        "dyn-ui": {
+            "type": "custom:maskagd.shader_visualizer/sprite-switch",
+            "name": "UI dynamic texture",
+            "description": "Select style",
+            "default": true,
+            "spr1": "ui.png",
+            "spr2": "uiset.png"
+        },
+        "dyn-comp": {
+            "type": "custom:maskagd.shader_visualizer/sprite-switch",
+            "name": "Item comp dynamic texture",
+            "description": "Select style",
+            "default": true,
+            "spr1": "comp.png",
+            "spr2": "comp5.png"
         },
         "dyn-ev": {
             "type": "custom:maskagd.shader_visualizer/sprite-switch",

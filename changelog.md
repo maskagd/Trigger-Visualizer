@@ -1,3 +1,12 @@
+## v1.4.0
+- Added new dynamic textures:
+  - UI trigger
+  - Item comp trigger
+- Added new settings to configure dynamic textures:
+  - Enable Item comp dynamic texture
+  - Enable UI dynamic texture
+- Added a button in the editor to toggle dynamic textures.
+
 ## v1.3.3
 - Added a new feature: when an Event trigger contains multiple actions that cannot be represented by a single texture, the mod now automatically combines multiple textures into one.
 - Added a new setting to enable or configure this texture-combination behavior.
