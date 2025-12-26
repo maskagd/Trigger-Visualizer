@@ -20,7 +20,8 @@
         "source": "https://github.com/maskag/Shader-Visualizer"
     },
 	"tags": ["editor", "offline", "customization"],
-    "dependencies": [
+
+	"dependencies": [
 		{
 			"id": "geode.node-ids",
 			"version": ">=1.12.1",
