@@ -2,11 +2,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/loader/SettingV3.hpp>
 
-// Подключаем необходимые биндинги, чтобы компилятор знал типы
-#include <Geode/binding/SetupCameraOffsetTrigger.hpp>
-#include <Geode/binding/SetupCameraRotatePopup.hpp>
-#include <Geode/binding/SetupCameraEdgePopup.hpp>
-
 using namespace geode::prelude;
 
 CCSprite* createIconSprite(std::string const& name);
