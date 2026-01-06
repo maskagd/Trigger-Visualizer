@@ -1,3 +1,7 @@
+# v1.6.1
+## Micro patch
+- FPS message now appears only once.
+
 # v1.6.0
 ## Dynamic Performance & Texture System Update
 - Added **dynamic texture for StartPos** with **~2300 unique variations** depending on settings and context.

@@ -65,7 +65,7 @@ class $modify(MyEffectGameObject, EffectGameObject) {
 };
 
 void checkAndAlertFPS(cocos2d::CCNode* runner) {
-    // Если предупреждение уже было показано, выходим и ничего не делаем
+
     if (Mod::get()->getSavedValue<bool>("fps-warned", false)) {
         return;
     }
@@ -74,12 +74,10 @@ void checkAndAlertFPS(cocos2d::CCNode* runner) {
     auto checkFPS = CallFuncExt::create([]() {
         float dt = CCDirector::sharedDirector()->getDeltaTime();
         
-        // Проверяем FPS (меньше 20)
         if (dt > 0.0f && (1.0f / dt) < 20.0f) {
-            // ЕЩЕ РАЗ проверяем перед показом
+
             if (Mod::get()->getSavedValue<bool>("fps-warned", false)) return;
 
-            // Помечаем, что предупреждение показано
             Mod::get()->setSavedValue("fps-warned", true);
 
             FLAlertLayer::create(
@@ -97,13 +95,10 @@ void checkAndAlertFPS(cocos2d::CCNode* runner) {
     }
 }
 
-// Этот блок выполняется при загрузке мода
+
 $execute {
-    // Сбрасываем флаг при запуске игры
     Mod::get()->setSavedValue("fps-warned", false);
 
-    // Слушаем изменение настройки "dynamic"
-    // ИСПРАВЛЕНО: Используем глобальную функцию listenForSettingChanges
     listenForSettingChanges("dynamic", +[](bool value) {
         Mod::get()->setSavedValue("fps-warned", false);
     });
