@@ -64,8 +64,50 @@ class $modify(MyEffectGameObject, EffectGameObject) {
     }
 };
 
+void checkAndAlertFPS(cocos2d::CCNode* runner) {
+    // Если предупреждение уже было показано, выходим и ничего не делаем
+    if (Mod::get()->getSavedValue<bool>("fps-warned", false)) {
+        return;
+    }
 
+    auto delay = CCDelayTime::create(0.5f);
+    auto checkFPS = CallFuncExt::create([]() {
+        float dt = CCDirector::sharedDirector()->getDeltaTime();
+        
+        // Проверяем FPS (меньше 20)
+        if (dt > 0.0f && (1.0f / dt) < 20.0f) {
+            // ЕЩЕ РАЗ проверяем перед показом
+            if (Mod::get()->getSavedValue<bool>("fps-warned", false)) return;
 
+            // Помечаем, что предупреждение показано
+            Mod::get()->setSavedValue("fps-warned", true);
+
+            FLAlertLayer::create(
+                "Trigger visualizer",      
+                "<cr>Your FPS is too low! </c>\n"
+                "It is recommended to <cy>disable</c> some dynamic texture options "
+                "in the mod settings to improve performance.",  
+                "OK"                    
+            )->show();
+        }
+    });
+
+    if (runner) {
+        runner->runAction(CCSequence::create(delay, checkFPS, nullptr));
+    }
+}
+
+// Этот блок выполняется при загрузке мода
+$execute {
+    // Сбрасываем флаг при запуске игры
+    Mod::get()->setSavedValue("fps-warned", false);
+
+    // Слушаем изменение настройки "dynamic"
+    // ИСПРАВЛЕНО: Используем глобальную функцию listenForSettingChanges
+    listenForSettingChanges("dynamic", +[](bool value) {
+        Mod::get()->setSavedValue("fps-warned", false);
+    });
+}
 
 // add button + callback (dynamic texture)
 class $modify(ShowDynamic, EditorUI) {
@@ -115,6 +157,8 @@ class $modify(ShowDynamic, EditorUI) {
         bool newValue = !current;
         Mod::get()->setSavedValue<bool>("dynamic", newValue);
 
+        Mod::get()->setSavedValue("fps-warned", false);
+
         auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
         if (auto onSpr = btn->getNormalImage()->getChildByID("on-indicator")) {
             onSpr->setVisible(newValue);
@@ -123,27 +167,7 @@ class $modify(ShowDynamic, EditorUI) {
         if (newValue) {
             TextureUtils::applyDynamicChangesGlobal();
             
-            auto delay = CCDelayTime::create(0.5f);
-            auto checkFPS = CallFuncExt::create([this]() {
-                float dt = CCDirector::sharedDirector()->getDeltaTime();
-                
-                if (dt > 0.0f) {
-                    float fps = 1.0f / dt;
-                    
-                    if (fps < 20.0f) {
-                        FLAlertLayer::create(
-                            "Trigger visualizer",      
-                            "<cr>Your FPS is too low! </c>"
-                            "It is recommended to <cy>disable</c> some dynamic texture options "
-                            "in the mod settings to improve performance.",  
-                            "OK"                    
-                        )->show();
-                    }
-                }
-            });
-
-
-            this->runAction(CCSequence::create(delay, checkFPS, nullptr));
+            checkAndAlertFPS(this);
 
         } else {
             resetDynamicIcons();
@@ -179,20 +203,11 @@ class $modify(ShowDynamic, EditorUI) {
         TextureUtils::applyDynamicChangesGlobal();
 
         if (Mod::get()->getSavedValue<bool>("dynamic", false)) {
-            auto delay = CCDelayTime::create(0.5f);
-            auto checkFPS = CallFuncExt::create([this]() {
-                float dt = CCDirector::sharedDirector()->getDeltaTime();
-                if (dt > 0.0f && (1.0f / dt) < 20.0f) {
-                    FLAlertLayer::create(
-                        "Trigger visualizer",      
-                        "<cr>Your FPS is too low! </c> It is recommended to <cy>disable</c> some dynamic texture options.",  
-                        "OK"                    
-                    )->show();
-                }
-            });
-            this->runAction(CCSequence::create(delay, checkFPS, nullptr));
+
+            checkAndAlertFPS(this);
         }
     }
+    
 
     void onPlaytest(CCObject* sender) {
         if (auto m = getChildByID("undo-menu")) {
@@ -219,21 +234,9 @@ class $modify(SetupTriggerPopup) {
         TextureUtils::applyDynamicChangesGlobal();
 
         if (Mod::get()->getSavedValue<bool>("dynamic", false)) {
-            auto delay = CCDelayTime::create(0.5f);
-            auto checkFPS = CallFuncExt::create([]() { 
-                float dt = CCDirector::sharedDirector()->getDeltaTime();
-                if (dt > 0.0f && (1.0f / dt) < 20.0f) {
-                    FLAlertLayer::create(
-                        "Trigger visualizer",      
-                        "<cr>Your FPS is too low! </c> It is recommended to <cy>disable</c> some dynamic texture options.",  
-                        "OK"                    
-                    )->show();
-                }
-            });
-
-            if (auto lel = LevelEditorLayer::get()) {
-                lel->runAction(CCSequence::create(delay, checkFPS, nullptr));
-            }
+             if (auto lel = LevelEditorLayer::get()) {
+                checkAndAlertFPS(lel);
+             }
         }
     }
 };
