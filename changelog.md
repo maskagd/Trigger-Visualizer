@@ -1,7 +1,6 @@
 # v1.6.2
 ## Geometry Dash 2.208 update
 - Mod updated to support **Geometry Dash 2.208**
-- **Minor internal adjustments** due to game update
 - No functional or visual changes for users
 
 # v1.6.1
