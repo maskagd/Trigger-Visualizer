@@ -1,34 +1,31 @@
 {
-	"geode": "5.0.0",
+	"geode": "5.0.0-beta.1",
 	"gd": {
-		"win": "2.2074",
-		"android": "2.2074",
-		"mac": "2.2074",
-		"ios": "2.2074"
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
 	},
 	"id": "maskagd.shader_visualizer",
 	"name": "Trigger Visualizer",
-	"version": "v1.6.1",
+	"version": "v2.0.0",
 	"developer": "maskagd",
-	"description": "Trigger Visualizer",
+	"description": "visually enhances triggers",
 	"resources": {
 		"sprites": [
 			"resources/*.png"
 		]
 	},
 	"links": {
-        "source": "https://github.com/maskag/Shader-Visualizer",
+        "source": "https://github.com/maskagd/Trigger-Visualizer",
         "homepage": "https://www.youtube.com/@maskagd"
     },
-	"tags": ["editor", "offline", "customization"],
+	"tags": ["editor", "offline", "customization", "enhancement", "interface"],
 
-	"dependencies": [
-		{
-			"id": "geode.node-ids",
-			"version": ">=1.12.1",
-			"importance": "required"
-		}
-	],
+	"dependencies": {
+        "geode.node-ids": ">=1.12.1"
+    },
+    
 	"settings": {
         "set-title": {
             "type": "title",
@@ -75,8 +72,8 @@
             "name": "Object edit triggers texture",
             "description": "Select texture style",
             "default": true,
-            "spr1": "movegd.png",
-            "spr2": "move.png"
+            "spr1": "pulsegd.png",
+            "spr2": "pulse.png"
         },
         "do-logic": {
             "type": "custom:maskagd.shader_visualizer/sprite-switch",
@@ -122,6 +119,22 @@
             "type": "title",
             "name": "dynamic texture settings"
         },
+        "dyn-enable": {
+            "type": "custom:maskagd.shader_visualizer/sprite-switch",
+            "name": "Enable dynamic textures",
+            "description": "Toggle dynamic textures in the editor",
+            "default": true,
+            "spr1": "dynamicoff.png",
+            "spr2": "dynamicon.png"
+        },
+        "dyn-game": {
+            "type": "custom:maskagd.shader_visualizer/sprite-switch",
+            "name": "Gameplay Triggers dynamic texture",
+            "description": "Select style",
+            "default": true,
+            "spr1": "move.png",
+            "spr2": "move_direction.png"
+        },
         "dyn-start": {
             "type": "custom:maskagd.shader_visualizer/sprite-switch",
             "name": "StartPos dynamic texture",
@@ -146,21 +159,13 @@
             "spr1": "ui.png",
             "spr2": "uiset.png"
         },
-        "dyn-comp": {
+        "dyn-item": {
             "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Item comp dynamic texture",
+            "name": "Item triggers dynamic texture",
             "description": "Select style",
             "default": true,
             "spr1": "comp.png",
             "spr2": "comp5.png"
-        },
-        "dyn-edit": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Item comp dynamic texture",
-            "description": "Select style",
-            "default": true,
-            "spr1": "edit.png",
-            "spr2": "edit1.png"
         },
         "dot-edit": {
             "type": "custom:maskagd.shader_visualizer/sprite-switch",

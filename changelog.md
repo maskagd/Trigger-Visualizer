@@ -1,8 +1,27 @@
-# v1.6.2
-## Geometry Dash 2.208 update
-- Mod updated to support **Geometry Dash 2.208**
-- **Minor internal adjustments** due to game update
-- No functional or visual changes for users
+# v2.0.0
+## Massive Visual & Performance Update
+- Reworked **131 trigger textures** to match original trigger resolutions  
+  (near 1:1 accuracy with vanilla sizing)
+- Enhanced **21 trigger textures** with improved visuals and alignment
+- Added **7 dynamic textures**
+  - Move trigger
+  - Rotate trigger
+  - Count trigger
+  - Pickup trigger
+  - Spawn trigger
+  - Collision trigger
+  - Gravity trigger
+- **~5x performance improvement** from a partial rewrite and smarter update logic
+- Large optimization pass
+  - Reduced overhead
+  - Fewer refresh cycles
+  - Smoother editor performance
+- Dynamic texture toggle moved to settings  
+  (editor button removed)
+- Dynamic item settings merged into a unified system
+- Dynamic textures now update automatically on placement, copy, and setting changes
+- Updated Geode to the latest version
+- Added support for game version **2.2081**
 
 # v1.6.1
 ## Micro patch

@@ -4,6 +4,54 @@
 #include <Geode/modify/SetupTriggerPopup.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/LevelSettingsObject.hpp>
+#include <Geode/modify/LevelSettingsLayer.hpp>
+#include <Geode/modify/SetupCameraOffsetTrigger.hpp>
+#include <Geode/modify/SetupCameraModePopup.hpp>
+
+static bool s_dynamicReady = false;
+
+// return standrat sprite
+static void resetDynamicIcons() {
+    auto lel = LevelEditorLayer::get();
+    if (!lel || !lel->m_objects) return;
+
+    bool doCam = getSwitchValue("do-cam");
+    bool colorCam = getSwitchValue("color-cam");
+
+    Ref<CCArray> arr = lel->m_objects;
+    for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
+        if (!obj) continue;
+        int id = obj->m_objectID;
+
+        if (id == 31) {
+            if (getSwitchValue("do-default") && !getSwitchValue("new-start")) {
+                TextureUtils::setObjIcon(obj, "start.png"_spr);
+            }
+            continue;
+        }
+
+        if (doCam) {
+            const char* camTex = nullptr;
+            switch (id) {
+                case 1914: camTex = colorCam ? "static.png"_spr : "cstatic.png"_spr; break;
+                case 1916: camTex = colorCam ? "offset.png"_spr : "Coffset.png"_spr; break;
+                case 2015: camTex = colorCam ? "rotatecam.png"_spr : "crotate.png"_spr; break;
+                case 2062: camTex = "edge.png"_spr; break;
+            }
+            if (camTex) {
+                TextureUtils::setObjIcon(obj, camTex);
+                continue;
+            }
+        }
+
+        auto it = TextureUtils::iconMap.find(id);
+        if (it != TextureUtils::iconMap.end()) {
+            if (getSwitchValue(it->second.second)) {
+                TextureUtils::setObjIcon(obj, it->second.first);
+            }
+        }
+    }
+}
 
 // change texture
 class $modify(MyEffectGameObject, EffectGameObject) {
@@ -47,64 +95,14 @@ class $modify(MyEffectGameObject, EffectGameObject) {
             if (tex) TextureUtils::setObjIcon(this, tex);
         }
 
-       if (!TextureUtils::g_isToolboxInit && Mod::get()->getSavedValue<bool>("dynamic", false)) {
-            TextureUtils::DynamicSettings ds;
-            ds.ev = getSwitchValue("dyn-ev");
-            ds.sfx = getSwitchValue("dyn-sfx");
-            ds.comp = getSwitchValue("dyn-comp");
-            ds.ui = getSwitchValue("dyn-ui");
-            ds.start = getSwitchValue("dyn-start");
-            ds.dotEdit = getSwitchValue("dot-edit");
-            ds.cam = getSwitchValue("dyn-cam");
-            ds.color = getSwitchValue("color-cam");
-            ds.offEv = Mod::get()->getSettingValue<float>("off-ev");
-            
-            TextureUtils::applyDynamicUpdates(this, ds);
+       if (!TextureUtils::g_isToolboxInit && s_dynamicReady && getSwitchValue("dyn-enable")) {
+            auto ds = TextureUtils::getDynamicSettings();
+            TextureUtils::applyDynamicUpdatesCached(this, ds);
         }
     }
 };
 
-void checkAndAlertFPS(cocos2d::CCNode* runner) {
-
-    if (Mod::get()->getSavedValue<bool>("fps-warned", false)) {
-        return;
-    }
-
-    auto delay = CCDelayTime::create(0.5f);
-    auto checkFPS = CallFuncExt::create([]() {
-        float dt = CCDirector::sharedDirector()->getDeltaTime();
-        
-        if (dt > 0.0f && (1.0f / dt) < 20.0f) {
-
-            if (Mod::get()->getSavedValue<bool>("fps-warned", false)) return;
-
-            Mod::get()->setSavedValue("fps-warned", true);
-
-            FLAlertLayer::create(
-                "Trigger visualizer",      
-                "<cr>Your FPS is too low! </c>\n"
-                "It is recommended to <cy>disable</c> some dynamic texture options "
-                "in the mod settings to improve performance.",  
-                "OK"                    
-            )->show();
-        }
-    });
-
-    if (runner) {
-        runner->runAction(CCSequence::create(delay, checkFPS, nullptr));
-    }
-}
-
-
-$execute {
-    Mod::get()->setSavedValue("fps-warned", false);
-
-    listenForSettingChanges("dynamic", +[](bool value) {
-        Mod::get()->setSavedValue("fps-warned", false);
-    });
-}
-
-// add button + callback (dynamic texture)
+// dynamic texture apply (create, copy...)
 class $modify(ShowDynamic, EditorUI) {
     bool init(LevelEditorLayer* editorlayer) {
         TextureUtils::g_isToolboxInit = true;
@@ -116,109 +114,67 @@ class $modify(ShowDynamic, EditorUI) {
 
         TextureUtils::g_isToolboxInit = false;
 
-        if (!getSwitchValue("dyn-ev") && !getSwitchValue("dyn-sfx") && 
-            !getSwitchValue("dyn-comp") && !getSwitchValue("dyn-ui") && !getSwitchValue("dyn-start")) return true;
-
-        bool isDynamic = Mod::get()->getSavedValue<bool>("dynamic", false);
-
-        auto menu = this->getChildByID("undo-menu");
-        if (menu) {
-            auto baseSpr = CCSprite::create("dynamicoff.png"_spr);
-            if (baseSpr) {
-                auto onSpr = CCSprite::create("dynamicon.png"_spr);
-                if (onSpr) {
-                    onSpr->setPosition(baseSpr->getContentSize() / 2);
-                    onSpr->setVisible(isDynamic);
-                    onSpr->setID("on-indicator");
-                    baseSpr->addChild(onSpr);
-                }
-                baseSpr->setScale(0.6f);
-
-                auto btn = CCMenuItemSpriteExtra::create(baseSpr, nullptr, this, menu_selector(ShowDynamic::onButton));
-                btn->setID("dynamic-button");
-                menu->addChild(btn);
-                menu->updateLayout();
-            }
+        if (!getSwitchValue("dyn-ev") && !getSwitchValue("dyn-sfx") &&
+            !getSwitchValue("dyn-item") && !getSwitchValue("dyn-ui") &&
+            !getSwitchValue("dyn-start") && !getSwitchValue("dyn-cam") &&
+            !getSwitchValue("dyn-game")) {
+            return true;
         }
 
-        if (isDynamic) {
-            TextureUtils::applyDynamicChangesGlobal();
-        }
+        s_dynamicReady = false;
+        this->runAction(CCSequence::create(
+            CCDelayTime::create(0.0f),
+            CallFuncExt::create([]() {
+                s_dynamicReady = true;
+                TextureUtils::clearDynamicCache();
+                TextureUtils::applyDynamicChangesGlobal();
+            }),
+            nullptr
+        ));
         return true;
     }
 
-    void onButton(CCObject* sender) {
-        bool current = Mod::get()->getSavedValue<bool>("dynamic", false);
-        bool newValue = !current;
-        Mod::get()->setSavedValue<bool>("dynamic", newValue);
+    GameObject* createObject(int objectID, cocos2d::CCPoint position) {
+        auto obj = EditorUI::createObject(objectID, position);
+        if (!obj || !s_dynamicReady || !getSwitchValue("dyn-enable")) return obj;
 
-        Mod::get()->setSavedValue("fps-warned", false);
-
-        auto btn = static_cast<CCMenuItemSpriteExtra*>(sender);
-        if (auto onSpr = btn->getNormalImage()->getChildByID("on-indicator")) {
-            onSpr->setVisible(newValue);
+        if (auto eff = typeinfo_cast<EffectGameObject*>(obj)) {
+            auto ds = TextureUtils::getDynamicSettings();
+            TextureUtils::applyDynamicUpdatesCached(eff, ds);
         }
-
-        if (newValue) {
-            TextureUtils::applyDynamicChangesGlobal();
-            
-            checkAndAlertFPS(this);
-
-        } else {
-            resetDynamicIcons();
-        }
+        return obj;
     }
-    void resetDynamicIcons() {
-        auto lel = LevelEditorLayer::get();
-        if (!lel || !lel->m_objects) return;
 
-        Ref<CCArray> arr = lel->m_objects;
-        for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
-            if (!obj) continue;
-            int id = obj->m_objectID;
+    cocos2d::CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo) {
+        auto arr = EditorUI::pasteObjects(str, withColor, noUndo);
+        if (!arr || !s_dynamicReady || !getSwitchValue("dyn-enable")) return arr;
 
-            if (id == 31) {
-                if (getSwitchValue("do-default") && !getSwitchValue("new-start")) {
-                    TextureUtils::setObjIcon(obj, "start.png"_spr);
-                }
-                continue; 
-            }
-
-            if (id == 1916 || id == 2015 || id == 2062 || id == 3602 || id == 3604 || id == 3619 || id == 3620 || id == 3613) {
-                 auto it = TextureUtils::iconMap.find(id);
-                 if (it != TextureUtils::iconMap.end()) {
-                     TextureUtils::setObjIcon(obj, it->second.first);
-                 }
+        auto ds = TextureUtils::getDynamicSettings();
+        for (auto obj : CCArrayExt<GameObject*>(arr)) {
+            if (auto eff = typeinfo_cast<EffectGameObject*>(obj)) {
+                TextureUtils::applyDynamicUpdatesCached(eff, ds);
             }
         }
+        return arr;
     }
 
     void onDeselectAll(CCObject* sender) {
         EditorUI::onDeselectAll(sender);
         TextureUtils::applyDynamicChangesGlobal();
-
-        if (Mod::get()->getSavedValue<bool>("dynamic", false)) {
-
-            checkAndAlertFPS(this);
-        }
-    }
-    
-
-    void onPlaytest(CCObject* sender) {
-        if (auto m = getChildByID("undo-menu")) {
-            if (auto b = m->getChildByID("dynamic-button")) b->setVisible(false);
-        }
-        EditorUI::onPlaytest(sender);
-    }
-
-    void onStopPlaytest(CCObject* sender) {
-        if (auto m = getChildByID("undo-menu")) {
-            if (auto b = m->getChildByID("dynamic-button")) b->setVisible(true);
-        }
-        EditorUI::onStopPlaytest(sender);
     }
 };
 
+$execute {
+    listenForSettingChanges<bool>("dyn-enable", [](bool value) {
+        if (value) {
+            TextureUtils::clearDynamicCache();
+            TextureUtils::applyDynamicChangesGlobal();
+        } else {
+            resetDynamicIcons();
+            TextureUtils::clearDynamicCache();
+        }
+    }, Mod::get());
+}
 
 
 // update dynamic texture on close popup
@@ -226,12 +182,45 @@ class $modify(SetupTriggerPopup) {
     void onClose(cocos2d::CCObject* sender) {
         SetupTriggerPopup::onClose(sender); 
         
+        TextureUtils::markDynamicDirty(this->m_gameObject);
+        TextureUtils::markDynamicDirty(this->m_gameObjects);
         TextureUtils::applyDynamicChangesGlobal();
+    }
+};
 
-        if (Mod::get()->getSavedValue<bool>("dynamic", false)) {
-             if (auto lel = LevelEditorLayer::get()) {
-                checkAndAlertFPS(lel);
-             }
+class $modify(MySetupCameraOffsetTrigger, SetupCameraOffsetTrigger) {
+    void onClose(cocos2d::CCObject* sender) {
+        SetupCameraOffsetTrigger::onClose(sender);
+
+        TextureUtils::markDynamicDirty(this->m_gameObject);
+        TextureUtils::markDynamicDirty(this->m_gameObjects);
+        TextureUtils::applyDynamicChangesGlobal();
+    }
+};
+
+class $modify(MySetupCameraModePopup, SetupCameraModePopup) {
+    void onClose(cocos2d::CCObject* sender) {
+        SetupCameraModePopup::onClose(sender);
+
+        TextureUtils::markDynamicDirty(this->m_gameObject);
+        TextureUtils::markDynamicDirty(this->m_gameObjects);
+        TextureUtils::applyDynamicChangesGlobal();
+    }
+};
+
+class $modify(MyLevelSettingsLayer, LevelSettingsLayer) {
+    void onClose(cocos2d::CCObject* sender) {
+        LevelSettingsLayer::onClose(sender);
+
+        if (auto lel = LevelEditorLayer::get()) {
+            if (auto objects = lel->m_objects) {
+                for (auto obj : CCArrayExt<EffectGameObject*>(objects)) {
+                    if (obj && obj->m_objectID == 31) {
+                        TextureUtils::markDynamicDirty(obj);
+                    }
+                }
+            }
         }
+        TextureUtils::applyDynamicChangesGlobal();
     }
 };
