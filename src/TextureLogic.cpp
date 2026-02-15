@@ -38,29 +38,50 @@ static std::optional<int> getIntKey(GameObject* obj, int key) {
     auto layer = LevelEditorLayer::get();
     if (!obj || !layer) return std::nullopt;
 
-    auto s = obj->getSaveString(layer);
-    if (!s.empty() && s[s.size() - 1] == ';') {
-        s = s.substr(0, s.size() - 1);
-    }
+    auto gs = obj->getSaveString(layer);     
+    const char* cstr = gs.c_str();     
+    if (!cstr) return std::nullopt;
+
+    std::string s(cstr);
+
+    if (!s.empty() && s.back() == ';') s.pop_back();
 
     bool isKey = true;
     int curKey = -1;
+
+    auto parseInt = [](const std::string& t, int& out) -> bool {
+        if (t.empty()) return false;
+        char* end = nullptr;
+        errno = 0;
+        long v = std::strtol(t.c_str(), &end, 10);
+        if (errno != 0 || end == t.c_str() || *end != '\0') return false;
+        out = static_cast<int>(v);
+        return true;
+    };
+
     std::string token;
+    token.reserve(16);
 
     for (size_t i = 0; i <= s.size(); ++i) {
         char c = (i < s.size()) ? s[i] : ',';
         if (c == ',') {
-            if (isKey) curKey = std::stoi(token);
-            else if (curKey == key) return std::stoi(token);
+            int val = 0;
+            if (parseInt(token, val)) {
+                if (isKey) {
+                    curKey = val;
+                } else if (curKey == key) {
+                    return val;
+                }
+            }
             token.clear();
             isKey = !isKey;
         } else {
             token.push_back(c);
         }
     }
+
     return std::nullopt;
 }
-
 namespace {
 using DynamicSettings = TextureUtils::DynamicSettings;
 using CacheKey = std::uint64_t;
