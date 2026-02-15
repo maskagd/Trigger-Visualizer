@@ -39,9 +39,9 @@ static std::optional<int> getIntKey(GameObject* obj, int key) {
     if (!obj || !layer) return std::nullopt;
 
     auto s = obj->getSaveString(layer);
-    std::string tmp = s
-    if (!tmp.empty() && tmp.back() == ';') tmp.pop_back();
-    s = tmp;
+    if (!s.empty() && s[s.size() - 1] == ';') {
+        s = s.substr(0, s.size() - 1);
+    }
 
     bool isKey = true;
     int curKey = -1;
