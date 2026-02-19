@@ -39,11 +39,13 @@ static std::optional<int> getIntKey(GameObject* obj, int key) {
     auto layer = LevelEditorLayer::get();
     if (!obj || !layer) return std::nullopt;
 
-    auto s = obj->getSaveString(layer);
+    auto gs = obj->getSaveString(layer);          
+    std::string s = gs.c_str();            
+
     if (!s.empty() && s.back() == ';')
         s.pop_back();
 
-    std::string_view view = s;
+    std::string_view view{s};
     size_t pos = 0;
     bool isKey = true;
     int currentKey = 0;
