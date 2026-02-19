@@ -13,6 +13,7 @@
 #include <cstring>
 #include <unordered_map>
 #include <unordered_set>
+#include <Geode/utils/general.hpp>
 
 
 bool TextureUtils::g_isToolboxInit = false;
@@ -38,50 +39,36 @@ static std::optional<int> getIntKey(GameObject* obj, int key) {
     auto layer = LevelEditorLayer::get();
     if (!obj || !layer) return std::nullopt;
 
-    auto gs = obj->getSaveString(layer);     
-    const char* cstr = gs.c_str();     
-    if (!cstr) return std::nullopt;
+    auto s = obj->getSaveString(layer);
+    if (!s.empty() && s.back() == ';')
+        s.pop_back();
 
-    std::string s(cstr);
-
-    if (!s.empty() && s.back() == ';') s.pop_back();
-
+    std::string_view view = s;
+    size_t pos = 0;
     bool isKey = true;
-    int curKey = -1;
+    int currentKey = 0;
 
-    auto parseInt = [](const std::string& t, int& out) -> bool {
-        if (t.empty()) return false;
-        char* end = nullptr;
-        errno = 0;
-        long v = std::strtol(t.c_str(), &end, 10);
-        if (errno != 0 || end == t.c_str() || *end != '\0') return false;
-        out = static_cast<int>(v);
-        return true;
-    };
+    while (pos < view.size()) {
+        auto next = view.find(',', pos);
+        auto token = view.substr(pos, next - pos);
 
-    std::string token;
-    token.reserve(16);
-
-    for (size_t i = 0; i <= s.size(); ++i) {
-        char c = (i < s.size()) ? s[i] : ',';
-        if (c == ',') {
-            int val = 0;
-            if (parseInt(token, val)) {
-                if (isKey) {
-                    curKey = val;
-                } else if (curKey == key) {
-                    return val;
-                }
-            }
-            token.clear();
-            isKey = !isKey;
-        } else {
-            token.push_back(c);
+        if (auto r = geode::utils::numFromString<int>(token)) {
+            if (isKey)
+                currentKey = *r;
+            else if (currentKey == key)
+                return *r;
         }
+
+        if (next == std::string_view::npos)
+            break;
+
+        pos = next + 1;
+        isKey = !isKey;
     }
 
     return std::nullopt;
 }
+
 namespace {
 using DynamicSettings = TextureUtils::DynamicSettings;
 using CacheKey = std::uint64_t;

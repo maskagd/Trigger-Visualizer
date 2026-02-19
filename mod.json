@@ -1,5 +1,5 @@
 {
-	"geode": "5.0.0-beta.1",
+	"geode": "5.0.0-beta.3",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -21,10 +21,6 @@
         "homepage": "https://www.youtube.com/@maskagd"
     },
 	"tags": ["editor", "offline", "customization", "enhancement", "interface"],
-
-	"dependencies": {
-        "geode.node-ids": ">=1.12.1"
-    },
     
 	"settings": {
         "set-title": {
