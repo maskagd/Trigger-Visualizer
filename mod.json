@@ -8,7 +8,7 @@
 	},
 	"id": "maskagd.shader_visualizer",
 	"name": "Trigger Visualizer",
-	"version": "v2.0.0",
+	"version": "v2.0.1",
 	"developer": "maskagd",
 	"description": "visually enhances triggers",
 	"resources": {
@@ -47,7 +47,7 @@
             "type": "custom:maskagd.shader_visualizer/sprite-switch",
             "name": "Camera color texture",
             "description": "Choose camera color texture",
-            "default": false,
+            "default": true,
             "spr1": "Coffset.png",
             "spr2": "offset.png"
         },

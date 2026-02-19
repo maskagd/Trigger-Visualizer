@@ -109,7 +109,6 @@ static bool settingsEqual(const DynamicSettings& a, const DynamicSettings& b) {
         a.game == b.game &&
         a.offEv == b.offEv;
 }
-
 static bool dynEv(const DynamicSettings& s) { return s.ev; }
 static bool dynSfx(const DynamicSettings& s) { return s.sfx; }
 static bool dynItem(const DynamicSettings& s) { return s.item; }
@@ -188,6 +187,16 @@ static std::uint64_t sigStart(EffectGameObject* obj, const DynamicSettings&) {
     sig = hashCombine(sig, settings->m_reverseGameplay ? 1u : 0u);
     sig = hashCombine(sig, settings->m_isFlipped ? 1u : 0u);
     return sig;
+}
+
+static std::uint64_t sigStopTexture(EffectGameObject* obj, const DynamicSettings&) {
+    int variant = 0;
+
+    if(auto v = getIntKey(obj, 580); *v == 1) variant = 1;
+    else if(auto v = getIntKey(obj, 580); *v == 2) variant = 2;
+    
+    std::uint64_t sig = static_cast<std::uint64_t>(obj->m_objectID);
+    return hashCombine(sig, static_cast<std::uint64_t>(variant + 1));
 }
 
 static std::uint64_t sigMove(EffectGameObject* obj, const DynamicSettings&) {
@@ -352,6 +361,9 @@ static void applyDynamicAction(DynamicAction action, EffectGameObject* obj, cons
         case DynamicAction::Start:
             TextureUtils::updateStartTexture(typeinfo_cast<StartPosObject*>(obj));
             break;
+        case DynamicAction::Stop:
+            TextureUtils::updateStopTexture(obj);
+            break;
         case DynamicAction::Move:
             TextureUtils::updateMoveTexture(obj);
             break;
@@ -402,6 +414,7 @@ static const DynamicRule kDynamicRules[] = {
     {3619, dynItem, sigEdit, DynamicAction::Edit},
     {3613, dynUi, sigUi, DynamicAction::Ui},
     {31, dynStart, sigStart, DynamicAction::Start},
+    {1616, dynGame, sigStop, DynamicAction::Stop},
     {901, dynGame, sigMove, DynamicAction::Move},
     {1346, dynGame, sigRotate, DynamicAction::Rotate},
     {1817, dynGame, sigPickup, DynamicAction::Pickup},
@@ -429,6 +442,17 @@ static std::uint64_t getDynamicSignature(EffectGameObject* obj, const DynamicSet
     return rule->signature(obj, s);
 }
 } 
+
+void TextureUtils::updateStopTexture(EffectGameObject* obj) {
+    if (!obj) return;
+    const char* tex = "stop.png"_spr;
+
+    if(auto v = getIntKey(obj, 580); *v == 1) tex = "pause.png"_spr;
+
+    else if(auto v = getIntKey(obj, 580); *v == 2) tex = "resume.png"_spr;
+    
+    setObjIcon(obj, tex);
+}
 
 void TextureUtils::updateRotateTexture(EffectGameObject* obj) {
     if (!obj) return;

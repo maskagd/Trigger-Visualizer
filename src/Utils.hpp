@@ -22,6 +22,7 @@ struct TextureUtils {
     static void updateEventTexture(EventLinkTrigger* obj, float gap);
     static void updateStartTexture(StartPosObject* obj);
 
+    static void updateStopTexture(EffectGameObject* obj);
     static void updateMoveTexture(EffectGameObject* obj);
     static void updateRotateTexture(EffectGameObject* obj);
 
