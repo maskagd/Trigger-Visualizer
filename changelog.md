@@ -1,3 +1,8 @@
+# v2.0.1
+## Mini patch
+- Added one dynamic texture (stop trigger)
+- Small changes in the code
+
 # v2.0.0
 ## Massive Visual & Performance Update
 - Reworked **131 trigger textures** to match original trigger resolutions  
