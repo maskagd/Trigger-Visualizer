@@ -95,7 +95,7 @@ class $modify(MyEffectGameObject, EffectGameObject) {
             if (tex) TextureUtils::setObjIcon(this, tex);
         }
 
-       if (!TextureUtils::g_isToolboxInit && s_dynamicReady && getSwitchValue("dyn-enable")) {
+        if (!TextureUtils::g_isToolboxInit && s_dynamicReady && getSwitchValue("dyn-enable")) {
             auto ds = TextureUtils::getDynamicSettings();
             TextureUtils::applyDynamicUpdatesCached(this, ds);
         }
@@ -178,40 +178,47 @@ $execute {
 
 
 // update dynamic texture on close popup
-class $modify(SetupTriggerPopup) {
+class $modify(MySetupTriggerPopup, SetupTriggerPopup) {
     void onClose(cocos2d::CCObject* sender) {
-        SetupTriggerPopup::onClose(sender); 
-        
-        TextureUtils::markDynamicDirty(this->m_gameObject);
-        TextureUtils::markDynamicDirty(this->m_gameObjects);
+        auto gameObject = this->m_gameObject;
+        auto gameObjects = this->m_gameObjects;
+
+        TextureUtils::markDynamicDirty(gameObject);
+        TextureUtils::markDynamicDirty(gameObjects);
         TextureUtils::applyDynamicChangesGlobal();
+
+        SetupTriggerPopup::onClose(sender);
     }
 };
 
 class $modify(MySetupCameraOffsetTrigger, SetupCameraOffsetTrigger) {
     void onClose(cocos2d::CCObject* sender) {
-        SetupCameraOffsetTrigger::onClose(sender);
+        auto gameObject = this->m_gameObject;
+        auto gameObjects = this->m_gameObjects;
 
-        TextureUtils::markDynamicDirty(this->m_gameObject);
-        TextureUtils::markDynamicDirty(this->m_gameObjects);
+        TextureUtils::markDynamicDirty(gameObject);
+        TextureUtils::markDynamicDirty(gameObjects);
         TextureUtils::applyDynamicChangesGlobal();
+
+        SetupCameraOffsetTrigger::onClose(sender);
     }
 };
 
 class $modify(MySetupCameraModePopup, SetupCameraModePopup) {
     void onClose(cocos2d::CCObject* sender) {
-        SetupCameraModePopup::onClose(sender);
+        auto gameObject = this->m_gameObject;
+        auto gameObjects = this->m_gameObjects;
 
-        TextureUtils::markDynamicDirty(this->m_gameObject);
-        TextureUtils::markDynamicDirty(this->m_gameObjects);
+        TextureUtils::markDynamicDirty(gameObject);
+        TextureUtils::markDynamicDirty(gameObjects);
         TextureUtils::applyDynamicChangesGlobal();
+
+        SetupCameraModePopup::onClose(sender);
     }
 };
 
 class $modify(MyLevelSettingsLayer, LevelSettingsLayer) {
     void onClose(cocos2d::CCObject* sender) {
-        LevelSettingsLayer::onClose(sender);
-
         if (auto lel = LevelEditorLayer::get()) {
             if (auto objects = lel->m_objects) {
                 for (auto obj : CCArrayExt<EffectGameObject*>(objects)) {
@@ -222,5 +229,7 @@ class $modify(MyLevelSettingsLayer, LevelSettingsLayer) {
             }
         }
         TextureUtils::applyDynamicChangesGlobal();
+
+        LevelSettingsLayer::onClose(sender);
     }
 };
