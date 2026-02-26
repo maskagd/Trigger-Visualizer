@@ -19,17 +19,25 @@
 bool TextureUtils::g_isToolboxInit = false;
 
 CCSprite* createIconSprite(std::string const& name) {
-    auto modPath = Mod::get()->expandSpriteName(name.c_str());
-    if (auto spr = CCSprite::create(std::string(modPath).c_str())) return spr;
+    if (auto mod = Mod::get()) {
+        auto modPath = mod->expandSpriteName(name.c_str());
+        if (auto spr = CCSprite::create(std::string(modPath).c_str())) return spr;
+    }
     if (auto spr = CCSprite::createWithSpriteFrameName(name.c_str())) return spr;
     if (auto spr = CCSprite::create(name.c_str())) return spr;
     return CCSprite::create();
 }
 
 void TextureUtils::setObjIcon(EffectGameObject* obj, const std::string& texture) {
-    if (!obj) return;
+    if (!obj || texture.empty()) return;
 
-    auto newSpr = CCSprite::create(texture.c_str());
+    CCSprite* newSpr = nullptr;
+    if (auto mod = Mod::get()) {
+        auto modPath = mod->expandSpriteName(texture.c_str());
+        newSpr = CCSprite::create(std::string(modPath).c_str());
+    }
+    if (!newSpr) newSpr = CCSprite::createWithSpriteFrameName(texture.c_str());
+    if (!newSpr) newSpr = CCSprite::create(texture.c_str());
     if (!newSpr) return;
 
     auto tex = newSpr->getTexture();
@@ -43,9 +51,16 @@ void TextureUtils::setObjIcon(EffectGameObject* obj, const std::string& texture)
     obj->setTextureRect(rect);
 }
 
+static bool isEditorObjectTracked(GameObject* obj) {
+    auto layer = LevelEditorLayer::get();
+    if (!obj || !layer || !layer->m_objects) return false;
+    return layer->m_objects->containsObject(obj);
+}
+
 static std::optional<int> getIntKey(GameObject* obj, int key) {
     auto layer = LevelEditorLayer::get();
-    if (!obj || !layer) return std::nullopt;
+    if (!obj || !layer || !layer->m_objects) return std::nullopt;
+    if (!isEditorObjectTracked(obj)) return std::nullopt;
 
     auto gs = obj->getSaveString(layer);          
     std::string s = gs.c_str();            
@@ -142,10 +157,17 @@ static std::uint64_t sigSfx(EffectGameObject* obj, const DynamicSettings&) {
     if (!sfx) return 0;
     float vol = sfx->m_volume;
 
-    float sfx5 = Mod::get()->getSettingValue<float>("sfx5");
-    float sfx4 = Mod::get()->getSettingValue<float>("sfx4");
-    float sfx3 = Mod::get()->getSettingValue<float>("sfx3");
-    float sfx2 = Mod::get()->getSettingValue<float>("sfx2");
+    auto mod = Mod::get();
+    float sfx5 = 1.25f;
+    float sfx4 = 0.75f;
+    float sfx3 = 0.50f;
+    float sfx2 = 0.25f;
+    if (mod) {
+        sfx5 = mod->getSettingValue<float>("sfx5");
+        sfx4 = mod->getSettingValue<float>("sfx4");
+        sfx3 = mod->getSettingValue<float>("sfx3");
+        sfx2 = mod->getSettingValue<float>("sfx2");
+    }
 
     int bucket = 1;
     if (vol > sfx5) bucket = 5;
@@ -643,13 +665,16 @@ void TextureUtils::updateSFXTexture(SFXTriggerGameObject* obj) {
     if (!obj) return;
     float vol = obj->m_volume;
     
-    static auto getSfxVal = [](const char* key) { return Mod::get()->getSettingValue<float>(key); };
+    auto mod = Mod::get();
+    auto getSfxVal = [mod](const char* key, float fallback) {
+        return mod ? mod->getSettingValue<float>(key) : fallback;
+    };
     
     const char* tex = "sfx1.png"_spr;
-    if (vol > getSfxVal("sfx5")) tex = "sfx5.png"_spr;
-    else if (vol > getSfxVal("sfx4")) tex = "sfx4.png"_spr;
-    else if (vol > getSfxVal("sfx3")) tex = "sfx3.png"_spr;
-    else if (vol > getSfxVal("sfx2")) tex = "sfx2.png"_spr;
+    if (vol > getSfxVal("sfx5", 1.25f)) tex = "sfx5.png"_spr;
+    else if (vol > getSfxVal("sfx4", 0.75f)) tex = "sfx4.png"_spr;
+    else if (vol > getSfxVal("sfx3", 0.50f)) tex = "sfx3.png"_spr;
+    else if (vol > getSfxVal("sfx2", 0.25f)) tex = "sfx2.png"_spr;
     
     setObjIcon(obj, tex);
 }
@@ -876,7 +901,11 @@ TextureUtils::DynamicSettings TextureUtils::getDynamicSettings() {
     settings.cam = getSwitchValue("dyn-cam");
     settings.color = getSwitchValue("color-cam");
     settings.game = getSwitchValue("dyn-game");
-    settings.offEv = Mod::get()->getSettingValue<float>("off-ev");
+    if (auto mod = Mod::get()) {
+        settings.offEv = mod->getSettingValue<float>("off-ev");
+    } else {
+        settings.offEv = 7.5f;
+    }
     return settings;
 }
 
@@ -932,7 +961,8 @@ void TextureUtils::applyDynamicChangesGlobal() {
     
     else {
         Ref<CCArray> arr = lel->m_objects;
-        for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
+        for (auto baseObj : CCArrayExt<GameObject*>(arr)) {
+            auto obj = typeinfo_cast<EffectGameObject*>(baseObj);
             if (!obj) continue;
             auto key = makeCacheKey(obj);
             if (!key) continue;
@@ -946,6 +976,7 @@ void TextureUtils::applyDynamicChangesGlobal() {
 
 void TextureUtils::markDynamicDirty(EffectGameObject* obj) {
     if (!obj) return;
+    if (!isEditorObjectTracked(obj)) return;
     auto key = makeCacheKey(obj);
     if (!key) return;
     s_dirtyObjects.insert(key);
@@ -965,7 +996,8 @@ void TextureUtils::clearDynamicCache() {
     s_hasLastSettings = false;
 }
 
-const std::unordered_map<int, std::pair<std::string, std::string>> TextureUtils::iconMap = {
+const std::unordered_map<int, std::pair<std::string, std::string>>& TextureUtils::getIconMap() {
+    static const std::unordered_map<int, std::pair<std::string, std::string>> iconMap = {
     // SHADER
     {2904, {"shader.png"_spr, "do-shader"}}, {2905, {"shock.png"_spr, "do-shader"}},
     {2907, {"line.png"_spr, "do-shader"}}, {2909, {"glitch.png"_spr, "do-shader"}},
@@ -1015,5 +1047,7 @@ const std::unordered_map<int, std::pair<std::string, std::string>> TextureUtils:
 
     // COLIS
     {3640, {"colisin.png"_spr, "do-colis"}}, {1816, {"colisblock.png"_spr, "do-colis"}},
-    {3643, {"colistouch.png"_spr, "do-colis"}}
-};
+        {3643, {"colistouch.png"_spr, "do-colis"}}
+    };
+    return iconMap;
+}

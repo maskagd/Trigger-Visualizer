@@ -45,8 +45,9 @@ static void resetDynamicIcons() {
             }
         }
 
-        auto it = TextureUtils::iconMap.find(id);
-        if (it != TextureUtils::iconMap.end()) {
+        auto const& iconMap = TextureUtils::getIconMap();
+        auto it = iconMap.find(id);
+        if (it != iconMap.end()) {
             if (getSwitchValue(it->second.second)) {
                 TextureUtils::setObjIcon(obj, it->second.first);
             }
@@ -61,8 +62,9 @@ class $modify(MyEffectGameObject, EffectGameObject) {
 
         int id = m_objectID;
 
-        auto it = TextureUtils::iconMap.find(id);
-        if (it != TextureUtils::iconMap.end()) {
+        auto const& iconMap = TextureUtils::getIconMap();
+        auto it = iconMap.find(id);
+        if (it != iconMap.end()) {
             if (getSwitchValue(it->second.second)) {
                 TextureUtils::setObjIcon(this, it->second.first);
             }
@@ -96,10 +98,9 @@ class $modify(MyEffectGameObject, EffectGameObject) {
             if (tex) TextureUtils::setObjIcon(this, tex);
         }
 
-        if (!TextureUtils::g_isToolboxInit && s_dynamicReady && getSwitchValue("dyn-enable")) {
-            auto ds = TextureUtils::getDynamicSettings();
-            TextureUtils::applyDynamicUpdatesCached(this, ds);
-        }
+        // Dynamic update inside customSetup is unsafe on some platforms because
+        // object data can still be partially initialized here.
+        // Dynamic textures are applied from editor-level passes instead.
     }
 };
 
@@ -166,6 +167,9 @@ class $modify(ShowDynamic, EditorUI) {
 };
 
 $execute {
+    auto mod = Mod::get();
+    if (!mod) return;
+
     listenForSettingChanges<bool>("dyn-enable", [](bool value) {
         if (value) {
             TextureUtils::clearDynamicCache();
@@ -174,7 +178,7 @@ $execute {
             resetDynamicIcons();
             TextureUtils::clearDynamicCache();
         }
-    }, Mod::get());
+    }, mod);
 }
 
 

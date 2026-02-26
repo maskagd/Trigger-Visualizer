@@ -87,12 +87,17 @@ SettingNodeV3* SpriteSwitchSettingV3::createNode(float width) {
 }
 
 $execute {
-    (void)Mod::get()->registerCustomSettingType("sprite-switch", &SpriteSwitchSettingV3::parse);
+    if (auto mod = Mod::get()) {
+        (void)mod->registerCustomSettingType("sprite-switch", &SpriteSwitchSettingV3::parse);
+    }
 }
 
 bool getSwitchValue(std::string const& key) {
-    if (auto setting = std::dynamic_pointer_cast<SpriteSwitchSettingV3>(Mod::get()->getSetting(key))) {
+    auto mod = Mod::get();
+    if (!mod) return false;
+
+    if (auto setting = std::dynamic_pointer_cast<SpriteSwitchSettingV3>(mod->getSetting(key))) {
         return setting->getValue();
     }
-    return Mod::get()->getSettingValue<bool>(key);
+    return mod->getSettingValue<bool>(key);
 }
