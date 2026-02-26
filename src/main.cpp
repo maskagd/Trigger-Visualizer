@@ -19,7 +19,8 @@ static void resetDynamicIcons() {
     bool colorCam = getSwitchValue("color-cam");
 
     Ref<CCArray> arr = lel->m_objects;
-    for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
+    for (auto baseObj : CCArrayExt<GameObject*>(arr)) {
+        auto obj = typeinfo_cast<EffectGameObject*>(baseObj);
         if (!obj) continue;
         int id = obj->m_objectID;
 
@@ -214,7 +215,8 @@ class $modify(MyLevelSettingsLayer, LevelSettingsLayer) {
 
         if (auto lel = LevelEditorLayer::get()) {
             if (auto objects = lel->m_objects) {
-                for (auto obj : CCArrayExt<EffectGameObject*>(objects)) {
+                for (auto baseObj : CCArrayExt<GameObject*>(objects)) {
+                    auto obj = typeinfo_cast<EffectGameObject*>(baseObj);
                     if (obj && obj->m_objectID == 31) {
                         TextureUtils::markDynamicDirty(obj);
                     }

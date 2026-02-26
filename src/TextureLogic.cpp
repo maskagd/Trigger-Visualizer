@@ -192,8 +192,8 @@ static std::uint64_t sigStart(EffectGameObject* obj, const DynamicSettings&) {
 static std::uint64_t sigStopTexture(EffectGameObject* obj, const DynamicSettings&) {
     int variant = 0;
 
-    if(auto v = getIntKey(obj, 580); *v == 1) variant = 1;
-    else if(auto v = getIntKey(obj, 580); *v == 2) variant = 2;
+    if (auto v = getIntKey(obj, 580); v && *v == 1) variant = 1;
+    else if (auto v = getIntKey(obj, 580); v && *v == 2) variant = 2;
     
     std::uint64_t sig = static_cast<std::uint64_t>(obj->m_objectID);
     return hashCombine(sig, static_cast<std::uint64_t>(variant + 1));
@@ -448,9 +448,9 @@ void TextureUtils::updateStopTexture(EffectGameObject* obj) {
     if (!obj) return;
     const char* tex = "stop.png"_spr;
 
-    if(auto v = getIntKey(obj, 580); *v == 1) tex = "pause.png"_spr;
+    if (auto v = getIntKey(obj, 580); v && *v == 1) tex = "pause.png"_spr;
 
-    else if(auto v = getIntKey(obj, 580); *v == 2) tex = "resume.png"_spr;
+    else if (auto v = getIntKey(obj, 580); v && *v == 2) tex = "resume.png"_spr;
     
     setObjIcon(obj, tex);
 }
@@ -918,7 +918,8 @@ void TextureUtils::applyDynamicChangesGlobal() {
 
     if (settingsChanged) {
         Ref<CCArray> arr = lel->m_objects;
-        for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
+        for (auto baseObj : CCArrayExt<GameObject*>(arr)) {
+            auto obj = typeinfo_cast<EffectGameObject*>(baseObj);
             if (obj) applyDynamicUpdatesCached(obj, settings);
         }
     } 
@@ -939,7 +940,8 @@ void TextureUtils::markDynamicDirty(EffectGameObject* obj) {
 
 void TextureUtils::markDynamicDirty(CCArray* objects) {
     if (!objects) return;
-    for (auto obj : CCArrayExt<EffectGameObject*>(objects)) {
+    for (auto baseObj : CCArrayExt<GameObject*>(objects)) {
+        auto obj = typeinfo_cast<EffectGameObject*>(baseObj);
         if (obj) markDynamicDirty(obj);
     }
 }
