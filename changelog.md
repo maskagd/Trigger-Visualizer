@@ -1,3 +1,9 @@
+# v2.0.2
+## Bug Fixes Update
+- Fixed a **crash on Android** that occurred when enabling Free Mode on portals
+- Fixed an **iOS startup issue** where the game would not launch with the mod enabled
+- General stability improvements
+
 # v2.0.1
 ## Mini patch
 - Added one dynamic texture (stop trigger)
