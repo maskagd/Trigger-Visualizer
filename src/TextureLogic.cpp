@@ -94,15 +94,19 @@ using DynamicSettings = TextureUtils::DynamicSettings;
 using CacheKey = std::uint64_t;
 
 static std::unordered_map<CacheKey, std::uint64_t> s_dynamicCache;
-static std::unordered_set<EffectGameObject*> s_dirtyObjects;
+static std::unordered_set<CacheKey> s_dirtyObjectKeys;
 static bool s_hasLastSettings = false;
 static DynamicSettings s_lastSettings{};
+
+static CacheKey makePointerKey(const void* ptr) {
+    auto raw = static_cast<CacheKey>(reinterpret_cast<std::uintptr_t>(ptr));
+    return (static_cast<CacheKey>(1) << 63) | (raw & ((static_cast<CacheKey>(1) << 63) - 1));
+}
 
 static CacheKey makeCacheKey(EffectGameObject* obj) {
     if (!obj) return 0;
     if (obj->m_uniqueID != 0) return static_cast<CacheKey>(obj->m_uniqueID);
-    auto ptr = static_cast<CacheKey>(reinterpret_cast<std::uintptr_t>(obj));
-    return (static_cast<CacheKey>(1) << 63) | (ptr & ((static_cast<CacheKey>(1) << 63) - 1));
+    return makePointerKey(obj);
 }
 
 static std::uint64_t hashCombine(std::uint64_t seed, std::uint64_t value) {
@@ -1204,7 +1208,7 @@ void TextureUtils::applyDynamicChangesGlobal() {
     s_hasLastSettings = true;
     s_lastSettings = settings;
 
-    if (!settingsChanged && s_dirtyObjects.empty()) {
+    if (!settingsChanged && s_dirtyObjectKeys.empty()) {
         return;
     }
 
@@ -1218,21 +1222,31 @@ void TextureUtils::applyDynamicChangesGlobal() {
     } 
     
     else {
-        for (auto obj : s_dirtyObjects) {
-            if (obj) {
-                applyDynamicUpdatesCached(obj, settings);
+        Ref<CCArray> arr = lel->m_objects;
+        for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
+            if (!obj) {
+                continue;
             }
+
+            auto stableKey = makeCacheKey(obj);
+            auto pointerKey = makePointerKey(obj);
+            if (s_dirtyObjectKeys.find(stableKey) == s_dirtyObjectKeys.end() &&
+                s_dirtyObjectKeys.find(pointerKey) == s_dirtyObjectKeys.end()) {
+                continue;
+            }
+
+            applyDynamicUpdatesCached(obj, settings);
         }
     }
 
-    s_dirtyObjects.clear();
+    s_dirtyObjectKeys.clear();
 }
 
 void TextureUtils::markDynamicDirty(EffectGameObject* obj) {
     if (!obj) {
         return;
     }
-    s_dirtyObjects.insert(obj);
+    s_dirtyObjectKeys.insert(makePointerKey(obj));
 }
 
 void TextureUtils::markDynamicDirty(CCArray* objects) {
@@ -1246,7 +1260,7 @@ void TextureUtils::markDynamicDirty(CCArray* objects) {
 
 void TextureUtils::clearDynamicCache() {
     s_dynamicCache.clear();
-    s_dirtyObjects.clear();
+    s_dirtyObjectKeys.clear();
     s_hasLastSettings = false;
 }
 
