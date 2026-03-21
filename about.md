@@ -1,54 +1,25 @@
-# Trigger <cr>V</c><co>i</c><cy>s</c><cg>u</c><cj>a</c><cl>l</c><cb>i</c><cp>z</c><cr>e</c><co>r</c>
-**Modernized trigger visuals for the editor with dynamic texture updates and maximum clarity.**  
-> ![✳️](frame:GJ_sDownloadIcon_001.png) <cg>*Check the settings to control which trigger categories and dynamic effects are applied.*</c>
-
----
+# <c-ff2a2a>T</c><c-ff6a1a>r</c><c-ffb21a>i</c><c-ffe51a>g</c><c-bdff1a>g</c><c-5dff1a>e</c><c-1aff55>r</c> <c-1affb3>V</c><c-1adfff>i</c><c-1a9cff>s</c><c-1a5cff>u</c><c-4b1aff>a</c><c-8f1aff>l</c><c-cf1aff>i</c><c-ff1ae8>z</c><c-ff1aa2>e</c><c-ff1a66>r</c>
 
 ## About
-Trigger Visualizer significantly improves editor readability by replacing default trigger textures with clearer and more informative visuals.
+Trigger Visualizer replaces default trigger textures with clearer visuals that **represent trigger behavior directly in the editor**
 
-The mod contains **225 unique custom textures** and modifies **101 different trigger types**, covering most commonly used triggers in the editor.
+Instead of generic icons, triggers now visually indicate **what they do**, making complex setups easier to understand at a glance
 
-Originally focused on shader triggers, it now supports a wide range of default triggers:
+The mod also supports **dynamic textures**, meaning some triggers **change their appearance based on their settings**
+This allows you to see key parameters without opening the edit menu
 
-- <cb>Shader triggers</c>
-- <cy>Gameplay triggers</c>
-- <cr>Area triggers</c>
-- <cp>Logical triggers</c>
-- <cc>Camera triggers</c>
-
-Additionally, the mod includes **support for Old Color trigger sprites**, making it easier to edit older levels that rely on the classic trigger visuals.
-
-Additionally, **20 trigger types feature dynamic textures**.  
-These textures **change depending on trigger settings**, making complex setups much easier to read and debug.
-
-Dynamic textures are available for:
-
-- SFX trigger  
-- Event trigger  
-- UI trigger  
-- Item comp and edit trigger   
-- StartPos trigger  
-- And more 
-
-These improvements allow fast visual identification of trigger behavior directly inside the editor, without opening settings panels.
+The mod also includes **Old Color trigger sprites support**, improving compatibility with older levels
 
 ---
 
-## Customization
-In <cg>the mod settings</c>, you can:
-
-- Enable or disable texture replacements for specific trigger categories.
-- Enable or disable **dynamic textures** for supported triggers.
-- Set a **volume threshold** for SFX triggers to control texture changes.
-- Adjust the **spacing between textures** for Event triggers.
-- Toggle dynamic textures directly in the editor using the new button.
-
-This allows flexible mixing of default and custom visuals.
+## Additionally
+- **104 trigger types modified**
+- **245 custom textures included**
+- **24 triggers support dynamic textures**
 
 ---
 
 ## Notes
-- Only affects the **editor**.
-- Does **not** change gameplay logic.
-- Fully visual enhancement.
+- Affects **editor visuals only**
+- Does **not** change gameplay
+- Designed for better clarity, faster building, and easier debugging

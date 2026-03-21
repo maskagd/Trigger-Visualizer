@@ -1,5 +1,5 @@
 {
-	"geode": "5.1.0",
+	"geode": "5.3.0",
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
@@ -8,7 +8,7 @@
 	},
 	"id": "maskagd.shader_visualizer",
 	"name": "Trigger Visualizer",
-	"version": "v2.1.0",
+	"version": "v2.2.0",
 	"developer": "maskagd",
 	"description": "Visually Enhances Triggers",
 	"resources": {
@@ -18,225 +18,240 @@
 	},
 	"links": {
         "source": "https://github.com/maskagd/Trigger-Visualizer",
-        "homepage": "https://www.youtube.com/@maskagd"
+        "homepage": "https://x.com/maskaGD"
     },
 	"tags": ["editor", "offline", "customization", "enhancement", "interface"],
     
 	"settings": {
+        "global-title": {
+            "type": "title",
+            "name": "global settings"
+        },
+            "new-triggers": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Enable mod",
+                "description": "Toggle the mod on or off. Turning it off will revert to default textures and disable dynamic textures",
+                "default": true,
+                "spr1": "textureoff.png", 
+                "spr2": "textureon.png"
+            },
+            "dyn-enable": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Enable dynamic textures",
+                "description": "Toggle dynamic textures in the editor",
+                "default": true,
+                "spr1": "dynamicoff.png",
+                "spr2": "dynamicon.png"
+            },
+
         "set-title": {
             "type": "title",
             "name": "texture settings"
         },
-        "new-start": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Start Pos texture",
-            "description": "Choose between default or custom start pos",
-            "default": false,
-            "spr1": "start.png", 
-            "spr2": "startgd.png"
-        },
-        "new-shake": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Shake texture",
-            "description": "Choose shake texture",
-            "default": false,
-            "spr1": "shake.png",
-            "spr2": "shakegd.png"
-        },
-        "color-cam": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Camera color texture",
-            "description": "Choose camera color texture",
-            "default": true,
-            "spr1": "Coffset.png",
-            "spr2": "offset.png"
-        },
-        "color-stop": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Area stop color texture",
-            "description": "Choose area stop texture",
-            "default": false,
-            "spr1": "astop.png",
-            "spr2": "astopc.png"
-        },
+            "new-start": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Start Pos texture",
+                "description": "Choose between default or custom start pos",
+                "default": false,
+                "spr1": "start.png", 
+                "spr2": "startgd.png"
+            },
+            "new-shake": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Shake texture",
+                "description": "Choose shake texture",
+                "default": false,
+                "spr1": "shake.png",
+                "spr2": "shakegd.png"
+            },
+            "color-cam": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Camera color texture",
+                "description": "Choose camera color texture",
+                "default": true,
+                "spr1": "Coffset.png",
+                "spr2": "offset.png"
+            },
+            "color-stop": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Area stop color texture",
+                "description": "Choose area stop texture",
+                "default": false,
+                "spr1": "astop.png",
+                "spr2": "astopc.png"
+            },
+
         "trg-title": {
             "type": "title",
             "name": "Enable Trigger Textures"
         },
-        "do-default": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Object edit triggers texture",
-            "description": "Select texture style",
-            "default": true,
-            "spr1": "pulsegd.png",
-            "spr2": "pulse.png"
-        },
-        "do-logic": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "logical triggers texture",
-            "description": "Select texture style",
-            "default": true,
-            "spr1": "persgd.png",
-            "spr2": "pers.png"
-        },
-        "do-colis": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "collision block texture",
-            "description": "Select texture style",
-            "default": false,
-            "spr1": "colisgd.png",
-            "spr2": "colisblock.png"
-        },
-        "do-shader": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Shader triggers texture",
-            "description": "Select texture style",
-            "default": true,
-            "spr1": "colorgd.png",
-            "spr2": "color.png"
-        },
-        "do-area": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Area triggers texture",
-            "description": "Select texture style",
-            "default": true,
-            "spr1": "arotategd.png",
-            "spr2": "arotate.png"
-        },
-        "do-cam": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Cameras triggers texture",
-            "description": "Select texture style",
-            "default": true,
-            "spr1": "edgegd.png",
-            "spr2": "edge.png"
-        },
+            "do-default": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Object edit triggers texture",
+                "description": "Select texture style",
+                "default": true,
+                "spr1": "pulsegd.png",
+                "spr2": "pulse.png"
+            },
+            "do-logic": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "logical triggers texture",
+                "description": "Select texture style",
+                "default": true,
+                "spr1": "persgd.png",
+                "spr2": "pers.png"
+            },
+            "do-colis": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "collision block texture",
+                "description": "Select texture style",
+                "default": false,
+                "spr1": "colisgd.png",
+                "spr2": "colisblock.png"
+            },
+            "do-shader": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Shader triggers texture",
+                "description": "Select texture style",
+                "default": true,
+                "spr1": "colorgd.png",
+                "spr2": "color.png"
+            },
+            "do-area": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Area triggers texture",
+                "description": "Select texture style",
+                "default": true,
+                "spr1": "arotategd.png",
+                "spr2": "arotate.png"
+            },
+            "do-cam": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Cameras triggers texture",
+                "description": "Select texture style",
+                "default": true,
+                "spr1": "edgegd.png",
+                "spr2": "edge.png"
+            },
+
         "dynamic-title": {
             "type": "title",
             "name": "dynamic texture settings"
         },
-        "dyn-enable": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Enable dynamic textures",
-            "description": "Toggle dynamic textures in the editor",
-            "default": true,
-            "spr1": "dynamicoff.png",
-            "spr2": "dynamicon.png"
-        },
-        "dyn-game": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Gameplay triggers dynamic texture",
-            "description": "move, rotate, startpos, and gravity triggers",
-            "default": true,
-            "spr1": "move.png",
-            "spr2": "move_direction.png"
-        },
-        "dyn-logic": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Logic triggers dynamic texture",
-            "description": "item, event, collision, spawn and ui triggers",
-            "default": true,
-            "spr1": "ev.png",
-            "spr2": "evland.png"
-        },
-        "dyn-cam": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Cameras dynamic texture",
-            "description": "Cameras triggers",
-            "default": true,
-            "spr1": "offset.png",
-            "spr2": "offsetX.png"
-        },
-        "dyn-color": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Color dynamic texture",
-            "description": "pulse and color triggers",
-            "default": true,
-            "spr1": "col.png",
-            "spr2": "col_pref.png"
-        },
-        "dot-edit": {
-            "type": "custom:maskagd.shader_visualizer/sprite-switch",
-            "name": "Multiplication sign",
-            "description": "Choose dot or star to represent multiplication in item edit",
-            "default": true,
-            "spr1": "edit3a.png",
-            "spr2": "edit3d.png"
-        },
-        "off-ev": {
-            "type": "float",
-            "name": "Spacing between event textures",
-            "description": "Spacing between textures in an event trigger when the event uses two different actions that do not share a common texture",
-            "default": 7.5,
-            "min": 0.0,
-            "max": 15.0,
-            "controls": {
-                "arrows": true,
-                "arrow-step": 2.0,
-                "slider": true,
-                "slider-step": 1.0,
-                "input": true
+            "dyn-game": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Gameplay triggers dynamic texture",
+                "description": "move, rotate, startpos, and gravity triggers",
+                "default": true,
+                "spr1": "move.png",
+                "spr2": "move_direction.png"
+            },
+            "dyn-logic": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Logic triggers dynamic texture",
+                "description": "item, event, collision, spawn and ui triggers",
+                "default": true,
+                "spr1": "ev.png",
+                "spr2": "evland.png"
+            },
+            "dyn-cam": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Cameras dynamic texture",
+                "description": "Cameras triggers",
+                "default": true,
+                "spr1": "offset.png",
+                "spr2": "offsetX.png"
+            },
+            "dyn-color": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Color dynamic texture",
+                "description": "pulse and color triggers",
+                "default": true,
+                "spr1": "col.png",
+                "spr2": "col_pref.png"
+            },
+            "dot-edit": {
+                "type": "custom:maskagd.shader_visualizer/sprite-switch",
+                "name": "Multiplication sign",
+                "description": "Choose dot or star to represent multiplication in item edit",
+                "default": true,
+                "spr1": "edit3a.png",
+                "spr2": "edit3d.png"
+            },
+            "off-ev": {
+                "type": "float",
+                "name": "Spacing between event textures",
+                "description": "Spacing between textures in an event trigger when the event uses two different actions that do not share a common texture",
+                "default": 7.5,
+                "min": 0.0,
+                "max": 15.0,
+                "controls": {
+                    "arrows": true,
+                    "arrow-step": 2.0,
+                    "slider": true,
+                    "slider-step": 1.0,
+                    "input": true
+                }
+            },
+            "sfx2": {
+                "type": "float",
+                "name": "SFX 1/4",
+                "description": "Set the SFX volume so it shows one of the four levels",
+                "default": 0.25,
+                "min": 0.0,
+                "max": 2.0,
+                "controls": {
+                    "arrows": true,
+                    "arrow-step": 0.1,
+                    "slider": true,
+                    "slider-step": 0.1,
+                    "input": true
+                }
+            },
+            "sfx3": {
+                "type": "float",
+                "name": "SFX 2/4",
+                "description": "Set the SFX volume so it shows two of the four levels",
+                "default": 0.50,
+                "min": 0.0,
+                "max": 2.0,
+                "controls": {
+                    "arrows": true,
+                    "arrow-step": 0.1,
+                    "slider": true,
+                    "slider-step": 0.1,
+                    "input": true
+                }
+            },
+            "sfx4": {
+                "type": "float",
+                "name": "SFX 3/4",
+                "description": "Set the SFX volume so it shows three of the four levels",
+                "default": 0.75,
+                "min": 0.0,
+                "max": 2.0,
+                "controls": {
+                    "arrows": true,
+                    "arrow-step": 0.1,
+                    "slider": true,
+                    "slider-step": 0.1,
+                    "input": true
+                }
+            },
+            "sfx5": {
+                "type": "float",
+                "name": "SFX 4/4",
+                "description": "Set the SFX volume so it shows four of the four levels",
+                "default": 1.25,
+                "min": 0.0,
+                "max": 2.0,
+                "controls": {
+                    "arrows": true,
+                    "arrow-step": 0.1,
+                    "slider": true,
+                    "slider-step": 0.1,
+                    "input": true
+                }
             }
-        },
-        "sfx2": {
-            "type": "float",
-            "name": "SFX 1/4",
-            "description": "Set the SFX volume so it shows one of the four levels",
-            "default": 0.25,
-            "min": 0.0,
-            "max": 2.0,
-            "controls": {
-                "arrows": true,
-                "arrow-step": 0.1,
-                "slider": true,
-                "slider-step": 0.1,
-                "input": true
-            }
-        },
-        "sfx3": {
-            "type": "float",
-            "name": "SFX 2/4",
-            "description": "Set the SFX volume so it shows two of the four levels",
-            "default": 0.50,
-            "min": 0.0,
-            "max": 2.0,
-            "controls": {
-                "arrows": true,
-                "arrow-step": 0.1,
-                "slider": true,
-                "slider-step": 0.1,
-                "input": true
-            }
-        },
-        "sfx4": {
-            "type": "float",
-            "name": "SFX 3/4",
-            "description": "Set the SFX volume so it shows three of the four levels",
-            "default": 0.75,
-            "min": 0.0,
-            "max": 2.0,
-            "controls": {
-                "arrows": true,
-                "arrow-step": 0.1,
-                "slider": true,
-                "slider-step": 0.1,
-                "input": true
-            }
-        },
-        "sfx5": {
-            "type": "float",
-            "name": "SFX 4/4",
-            "description": "Set the SFX volume so it shows four of the four levels",
-            "default": 1.25,
-            "min": 0.0,
-            "max": 2.0,
-            "controls": {
-                "arrows": true,
-                "arrow-step": 0.1,
-                "slider": true,
-                "slider-step": 0.1,
-                "input": true
-            }
-        }
     }
 }

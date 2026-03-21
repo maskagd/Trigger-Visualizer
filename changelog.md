@@ -1,3 +1,12 @@
+# v2.2.0
+## Dynamic Texture Expansion & Improvements
+- Added **new dynamic textures for Area triggers**
+- Added **4 new trigger textures**
+- Updated **10 existing trigger textures**
+- Small **settings adjustments**
+- Updated **mod description**
+- Fixed various **bugs and issues**
+
 # v2.1.0
 ## Dynamic Texture & Settings Update
 - Added **two new dynamic textures**

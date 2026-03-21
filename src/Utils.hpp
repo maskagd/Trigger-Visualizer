@@ -17,6 +17,7 @@ struct TextureUtils {
     static void updateCompTexture(ItemTriggerGameObject* obj);
     static void updateEditTexture(ItemTriggerGameObject* obj, bool dot);
 
+    static void updateAreaTexture(EnterEffectObject* obj);
     static void updateSFXTexture(SFXTriggerGameObject* obj);
     static void updateUiTexture(UISettingsGameObject* obj);
     static void updateEventTexture(EventLinkTrigger* obj, float gap);

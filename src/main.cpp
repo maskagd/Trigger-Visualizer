@@ -12,48 +12,27 @@
 
 static bool s_dynamicReady = false;
 
-// return standrat sprite
-static void resetDynamicIcons() {
+static bool isModEnabled() {
+    return getSwitchValue("new-triggers");
+}
+
+static void refreshLevelIcons() {
     auto lel = LevelEditorLayer::get();
     if (!lel || !lel->m_objects) {
         return;
     }
 
-    bool doCam = getSwitchValue("do-cam");
-    bool colorCam = getSwitchValue("color-cam");
-
     Ref<CCArray> arr = lel->m_objects;
     for (auto obj : CCArrayExt<EffectGameObject*>(arr)) {
-        if (!obj) continue;
-        int id = obj->m_objectID;
-
-        if (id == 31) {
-            if (getSwitchValue("do-default") && !getSwitchValue("new-start")) {
-                TextureUtils::setObjIcon(obj, "start.png"_spr);
-            }
+        if (!obj) {
             continue;
         }
+        obj->customSetup();
+    }
 
-        if (doCam) {
-            const char* camTex = nullptr;
-            switch (id) {
-                case 1914: camTex = colorCam ? "static.png"_spr : "cstatic.png"_spr; break;
-                case 1916: camTex = colorCam ? "offset.png"_spr : "Coffset.png"_spr; break;
-                case 2015: camTex = colorCam ? "rotatecam.png"_spr : "crotate.png"_spr; break;
-                case 2062: camTex = "edge.png"_spr; break;
-            }
-            if (camTex) {
-                TextureUtils::setObjIcon(obj, camTex);
-                continue;
-            }
-        }
-
-        auto it = TextureUtils::iconMap.find(id);
-        if (it != TextureUtils::iconMap.end()) {
-            if (getSwitchValue(it->second.second)) {
-                TextureUtils::setObjIcon(obj, it->second.first);
-            }
-        }
+    TextureUtils::clearDynamicCache();
+    if (isModEnabled() && getSwitchValue("dyn-enable")) {
+        TextureUtils::applyDynamicChangesGlobal();
     }
 }
 
@@ -61,6 +40,10 @@ static void resetDynamicIcons() {
 class $modify(MyEffectGameObject, EffectGameObject) {
     void customSetup() {
         EffectGameObject::customSetup();
+
+        if (!isModEnabled()) {
+            return;
+        }
 
         int id = m_objectID;
 
@@ -120,6 +103,11 @@ class $modify(ShowDynamic, EditorUI) {
 
         TextureUtils::g_isToolboxInit = false;
 
+        if (!isModEnabled()) {
+            s_dynamicReady = false;
+            return true;
+        }
+
         if (!getSwitchValue("dyn-logic") && !getSwitchValue("dyn-cam") &&
             !getSwitchValue("dyn-game") && !getSwitchValue("dyn-color")) {
             return true;
@@ -143,7 +131,7 @@ class $modify(ShowDynamic, EditorUI) {
         if (!obj) {
             return obj;
         }
-        if (!s_dynamicReady || !getSwitchValue("dyn-enable")) {
+        if (!isModEnabled() || !s_dynamicReady || !getSwitchValue("dyn-enable")) {
             return obj;
         }
 
@@ -159,7 +147,7 @@ class $modify(ShowDynamic, EditorUI) {
         if (!arr) {
             return arr;
         }
-        if (!s_dynamicReady || !getSwitchValue("dyn-enable")) {
+        if (!isModEnabled() || !s_dynamicReady || !getSwitchValue("dyn-enable")) {
             return arr;
         }
 
@@ -174,20 +162,30 @@ class $modify(ShowDynamic, EditorUI) {
 
     void onDeselectAll(CCObject* sender) {
         EditorUI::onDeselectAll(sender);
+        if (!isModEnabled()) {
+            return;
+        }
         TextureUtils::applyDynamicChangesGlobal();
     }
 };
 
 $execute {
     if (auto mod = Mod::get()) {
+        listenForSettingChanges<bool>("new-triggers", [](bool) {
+            refreshLevelIcons();
+        }, mod);
+
         listenForSettingChanges<bool>("dyn-enable", [](bool value) {
+            if (!isModEnabled()) {
+                TextureUtils::clearDynamicCache();
+                refreshLevelIcons();
+                return;
+            }
+
             if (value) {
                 TextureUtils::clearDynamicCache();
-                TextureUtils::applyDynamicChangesGlobal();
-            } else {
-                resetDynamicIcons();
-                TextureUtils::clearDynamicCache();
             }
+            refreshLevelIcons();
         }, mod);
     } else {
     }
@@ -197,6 +195,9 @@ $execute {
 class $modify(MySetupTriggerPopup, SetupTriggerPopup) {
     void onClose(cocos2d::CCObject* sender) {
         SetupTriggerPopup::onClose(sender); 
+        if (!isModEnabled()) {
+            return;
+        }
         
         TextureUtils::markDynamicDirty(this->m_gameObject);
         TextureUtils::markDynamicDirty(this->m_gameObjects);
@@ -207,6 +208,9 @@ class $modify(MySetupTriggerPopup, SetupTriggerPopup) {
 class $modify(MySetupCameraOffsetTrigger, SetupCameraOffsetTrigger) {
     void onClose(cocos2d::CCObject* sender) {
         SetupCameraOffsetTrigger::onClose(sender);
+        if (!isModEnabled()) {
+            return;
+        }
 
         TextureUtils::markDynamicDirty(this->m_gameObject);
         TextureUtils::markDynamicDirty(this->m_gameObjects);
@@ -216,6 +220,9 @@ class $modify(MySetupCameraOffsetTrigger, SetupCameraOffsetTrigger) {
 
 class $modify(MyColorSelectPopup, ColorSelectPopup) {
     void applyColorPopupDynamicUpdate() {
+        if (!isModEnabled()) {
+            return;
+        }
         TextureUtils::markDynamicDirty(this->m_gameObject);
         TextureUtils::markDynamicDirty(this->m_gameObjects);
         TextureUtils::markDynamicDirty(this->m_colorObjects);
@@ -236,6 +243,9 @@ class $modify(MyColorSelectPopup, ColorSelectPopup) {
 class $modify(MyLevelSettingsLayer, LevelSettingsLayer) {
     void onClose(cocos2d::CCObject* sender) {
         LevelSettingsLayer::onClose(sender);
+        if (!isModEnabled()) {
+            return;
+        }
 
         if (auto lel = LevelEditorLayer::get()) {
             if (auto objects = lel->m_objects) {

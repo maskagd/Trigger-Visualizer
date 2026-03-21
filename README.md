@@ -1,54 +1,26 @@
 # Trigger <cr>V</c><co>i</c><cy>s</c><cg>u</c><cj>a</c><cl>l</c><cb>i</c><cp>z</c><cr>e</c><co>r</c>
-**Modernized trigger visuals for the editor with dynamic texture updates and maximum clarity.**  
-
 <img src="logo.png" width="150" alt="the mod's logo" />
----
 
 ## About
-Trigger Visualizer significantly improves editor readability by replacing default trigger textures with clearer and more informative visuals.
+Trigger Visualizer replaces default trigger textures with clearer visuals that **represent trigger behavior directly in the editor**
 
-The mod contains **225 unique custom textures** and modifies **101 different trigger types**, covering most commonly used triggers in the editor.
+Instead of generic icons, triggers now visually indicate **what they do**, making complex setups easier to understand at a glance
 
-Originally focused on shader triggers, it now supports a wide range of default triggers:
+The mod also supports **dynamic textures**, meaning some triggers **change their appearance based on their settings**
+This allows you to see key parameters without opening the edit menu
 
-- <cb>Shader triggers</c>
-- <cy>Gameplay triggers</c>
-- <cr>Area triggers</c>
-- <cp>Logical triggers</c>
-- <cc>Camera triggers</c>
-
-Additionally, the mod includes **support for Old Color trigger sprites**, making it easier to edit older levels that rely on the classic trigger visuals.
-
-Additionally, **20 trigger types feature dynamic textures**.  
-These textures **change depending on trigger settings**, making complex setups much easier to read and debug.
-
-Dynamic textures are available for:
-
-- SFX trigger  
-- Event trigger  
-- UI trigger  
-- Item comp and edit trigger   
-- StartPos trigger  
-- And more 
-
-These improvements allow fast visual identification of trigger behavior directly inside the editor, without opening settings panels.
+The mod also includes **Old Color trigger sprites support**, improving compatibility with older levels
 
 ---
 
-## Customization
-In <cg>the mod settings</c>, you can:
-
-- Enable or disable texture replacements for specific trigger categories.
-- Enable or disable **dynamic textures** for supported triggers.
-- Set a **volume threshold** for SFX triggers to control texture changes.
-- Adjust the **spacing between textures** for Event triggers.
-- Toggle dynamic textures directly in the editor using the new button.
-
-This allows flexible mixing of default and custom visuals.
+## Additionally
+- **104 trigger types modified**
+- **245 custom textures included**
+- **24 triggers support dynamic textures**
 
 ---
 
 ## Notes
-- Only affects the **editor**.
-- Does **not** change gameplay logic.
-- Fully visual enhancement.
+- Affects **editor visuals only**
+- Does **not** change gameplay
+- Designed for better clarity, faster building, and easier debugging

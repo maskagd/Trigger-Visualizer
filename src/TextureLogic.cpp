@@ -9,6 +9,7 @@
 #include <Geode/binding/CountTriggerGameObject.hpp>
 #include <Geode/binding/CollisionTriggerAction.hpp>
 #include <Geode/binding/SpawnTriggerAction.hpp>
+#include <Geode/binding/EnterEffectObject.hpp>
 #include <Geode/binding/ColorActionSprite.hpp>
 #include <Geode/binding/ColorAction.hpp>
 #include <cstdint>
@@ -148,6 +149,54 @@ static const char* getColorTriggerBaseTexture(int objectID) {
     }
 }
 
+
+static const char* getAreaTriggerBaseTexture(int objectID) {
+    switch (objectID) {
+        case 3006: return "amove.png"_spr;
+        case 3007: return "arotate.png"_spr;
+        case 3008: return "ascale.png"_spr;
+        case 3009: return "aalpha.png"_spr;
+        case 3010: return "apulse.png"_spr;
+        default:
+            return "amove.png"_spr;
+    }
+}
+
+/*
+    1: 262.0
+    2: 262.0, 276
+    3: 262.1, 283
+    4: 262.1, 276, 283
+    5: 262.1,
+    6: 262.1, 276
+    7: 262.2, 283
+    8: 262.2, 276, 283
+    9: 262.2
+    10: 262.2, 276
+*/
+
+static int getAreaBucket(GameObject* obj) {
+    if (!obj) return 1;
+    int direct = getIntKey(obj, 262).value_or(0);
+    bool reverse = getIntKey(obj, 276).value_or(0) != 0;
+    bool sided = getIntKey(obj, 283).value_or(0) != 0;
+    if (direct == 0) {
+        return reverse ? 2 : 1;
+    }
+    if (direct == 1) {
+        if (sided) {
+            return reverse ? 4 : 3;
+        }
+        return reverse ? 6 : 5;
+    }
+    if (direct == 2) {
+        if (sided) {
+            return reverse ? 8 : 7;
+        }
+        return reverse ? 10 : 9;
+    }
+    return 1;
+}
 static ccColor3B getColorTriggerTint(EffectGameObject* obj) {
     if (!obj) return ccColor3B{255, 255, 255};
 
@@ -189,6 +238,15 @@ static bool dynLogic(const DynamicSettings& s) { return s.logic; }
 static bool dynCam(const DynamicSettings& s) { return s.cam; }
 static bool dynGame(const DynamicSettings& s) { return s.game; }
 static bool dynColor(const DynamicSettings& s) { return s.dynColor; }
+
+static std::uint64_t sigArea(EffectGameObject* obj, const DynamicSettings&) {
+    auto area = typeinfo_cast<EnterEffectObject*>(obj);
+    if (!area) return 0;
+
+    std::uint64_t sig = static_cast<std::uint64_t>(obj->m_objectID);
+    return hashCombine(sig, static_cast<std::uint64_t>(getAreaBucket(obj)));
+}
+
 
 static std::uint64_t sigEvent(EffectGameObject* obj, const DynamicSettings& s) {
     auto ev = typeinfo_cast<EventLinkTrigger*>(obj);
@@ -366,13 +424,17 @@ static std::uint64_t sigCount(EffectGameObject* obj, const DynamicSettings&) {
     return hashCombine(sig, static_cast<std::uint64_t>(variant + 1));
 }
 
+
+//1,1916,2,1245,3,165,36,1,28,30,10,0.5,85,2;
+//1,1916,2,1245,3,165,36,1,10,0.5,85,2;f
+
 static std::uint64_t sigOffsetCam(EffectGameObject* obj, const DynamicSettings& s) {
     auto cam = typeinfo_cast<CameraTriggerGameObject*>(obj);
     if (!cam) return 0;
     auto vX = getIntKey(cam, 28);
     auto vY = getIntKey(cam, 29);
-    bool xOnly = vX && *vX == 1;
-    bool yOnly = vY && *vY == 1;
+    bool xOnly = vX >= 1 && *vX >= 1;
+    bool yOnly = vY >= 1 && *vY >= 1;
     int variant = 0;
     if (xOnly && !yOnly) variant = 1;
     else if (yOnly && !xOnly) variant = 2;
@@ -415,6 +477,7 @@ static std::uint64_t sigEdgeCam(EffectGameObject* obj, const DynamicSettings&) {
 
 enum class DynamicAction {
     Event,
+    Area,
     Sfx,
     Comp,
     Edit,
@@ -439,6 +502,7 @@ enum class DynamicAction {
 static const char* dynamicActionName(DynamicAction action) {
     switch (action) {
         case DynamicAction::Event: return "Event";
+        case DynamicAction::Area: return "Area";
         case DynamicAction::Sfx: return "Sfx";
         case DynamicAction::Comp: return "Comp";
         case DynamicAction::Edit: return "Edit";
@@ -472,6 +536,9 @@ static void applyDynamicAction(DynamicAction action, EffectGameObject* obj, cons
             break;
         case DynamicAction::Comp:
             TextureUtils::updateCompTexture(typeinfo_cast<ItemTriggerGameObject*>(obj));
+            break;
+        case DynamicAction::Area:
+            TextureUtils::updateAreaTexture(typeinfo_cast<EnterEffectObject*>(obj));
             break;
         case DynamicAction::Edit:
             TextureUtils::updateEditTexture(typeinfo_cast<ItemTriggerGameObject*>(obj), s.dotEdit);
@@ -548,6 +615,11 @@ static const DynamicRule kDynamicRules[] = {
     {1815, dynLogic, sigColis, DynamicAction::Colis},
     {1268, dynLogic, sigSpawn, DynamicAction::Spawn},
     {2066, dynGame, sigGravity, DynamicAction::Gravity},
+    {3006, dynGame, sigArea, DynamicAction::Area},
+    {3007, dynGame, sigArea, DynamicAction::Area},
+    {3008, dynGame, sigArea, DynamicAction::Area},
+    {3009, dynGame, sigArea, DynamicAction::Area},
+    {3010, dynGame, sigArea, DynamicAction::Area},
     {899, dynColor, sigColorTrigger, DynamicAction::Color},
     {29, dynColor, sigColorTrigger, DynamicAction::Color},
     {30, dynColor, sigColorTrigger, DynamicAction::Color},
@@ -665,6 +737,70 @@ void TextureUtils::updateGravityTexture(EffectGameObject* obj) {
     setObjIcon(obj, tex);
 }
 
+void TextureUtils::updateAreaTexture(EnterEffectObject* obj) {
+    if (!obj) return;
+
+    const char* baseTex = getAreaTriggerBaseTexture(obj->m_objectID);
+    auto sprBase = CCSprite::create(baseTex);
+    auto sprEmp = CCSprite::create("area1.png"_spr);
+
+    switch (getAreaBucket(obj)) {
+        case 2: sprEmp = CCSprite::create("area2.png"_spr); break;
+        case 3: sprEmp = CCSprite::create("area3.png"_spr); break;
+        case 4: sprEmp = CCSprite::create("area4.png"_spr); break;
+        case 5: sprEmp = CCSprite::create("area5.png"_spr); break;
+        case 6: sprEmp = CCSprite::create("area6.png"_spr); break;
+        case 7: sprEmp = CCSprite::create("area7.png"_spr); break;
+        case 8: sprEmp = CCSprite::create("area8.png"_spr); break;
+        case 9: sprEmp = CCSprite::create("area10.png"_spr); break;
+        case 10: sprEmp = CCSprite::create("area9.png"_spr); break;
+        default: sprEmp = CCSprite::create("area1.png"_spr); break;
+    }
+
+    if (!sprBase || !sprEmp) {
+        setObjIcon(obj, baseTex);
+        return;
+    }
+
+    auto baseSize = sprBase->getContentSize();
+    auto empSize = sprEmp->getContentSize();
+    float w = baseSize.width > empSize.width ? baseSize.width : empSize.width;
+    float h = baseSize.height > empSize.height ? baseSize.height : empSize.height;
+    constexpr float kPad = 4.f;
+    w += kPad * 2.f;
+    h += kPad * 2.f;
+
+    if (w <= 0.f || h <= 0.f) {
+        setObjIcon(obj, baseTex);
+        return;
+    }
+
+    auto center = CCPoint{w / 2.f, h / 2.f};
+
+    sprBase->setPosition(center);
+    sprEmp->setPosition(center);
+
+    sprBase->setFlipY(true);
+    sprEmp->setFlipY(true);
+
+    auto rt = CCRenderTexture::create(w, h);
+    if (!rt) return;
+
+    rt->beginWithClear(0, 0, 0, 0);
+    sprBase->visit();
+    sprEmp->visit();
+    rt->end();
+
+    if (auto tex = rt->getSprite()->getTexture()) {
+        ccTexParams tp = {GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE};
+        tex->setTexParameters(&tp);
+        obj->m_addToNodeContainer = true;
+        obj->setTexture(tex);
+        obj->setTextureRect({0, 0, w, h});
+    } else {
+        setObjIcon(obj, baseTex);
+    }
+}
 void TextureUtils::updateColorTexture(EffectGameObject* obj) {
     if (!obj) return;
     auto color = getColorTriggerTint(obj);
@@ -823,8 +959,8 @@ void TextureUtils::updateOffsetCamTexture(CameraTriggerGameObject* obj, bool col
 
     auto vX = getIntKey(obj, 28);
     auto vY = getIntKey(obj, 29);
-    bool xOnly = vX && *vX == 1;
-    bool yOnly = vY && *vY == 1;
+    bool xOnly = vX >= 1 && *vX >= 1;
+    bool yOnly = vY >= 1 && *vY >= 1;
 
     const char* tex = color ? "offset.png"_spr : "Coffset.png"_spr;
 
@@ -1295,8 +1431,10 @@ const std::unordered_map<int, std::pair<std::string, std::string>> TextureUtils:
     {1934, {"song.png"_spr, "do-default"}}, {3605, {"editsong.png"_spr, "do-default"}},
     {3029, {"bgc.png"_spr, "do-default"}}, {3030, {"gc.png"_spr, "do-default"}},
     {3031, {"mgc.png"_spr, "do-default"}}, {3604, {"ev.png"_spr, "do-default"}},
-    {2066, {"gravity_low.png"_spr, "do-default"}},
-
+    {2066, {"gravity_low.png"_spr, "do-default"}}, {32, {"ghost.png"_spr, "do-default"}},
+    {33, {"ghost_dis.png"_spr, "do-default"}}, {1612, {"hide_p.png"_spr, "do-default"}},
+    {1613, {"show_p.png"_spr, "do-default"}}, {1818, {"bg.png"_spr, "do-default"}}, 
+    {1819, {"offbg.png"_spr, "do-default"}},
     // LOGIC
     {1616, {"stop.png"_spr, "do-logic"}}, {1817, {"pickup.png"_spr, "do-logic"}},
     {1268, {"spawn.png"_spr, "do-logic"}}, {1347, {"follow.png"_spr, "do-logic"}},
