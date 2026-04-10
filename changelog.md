@@ -1,9 +1,15 @@
+# v2.2.3
+## New logo (ignore patch 3)
+- new **logo**
+- Fixed **Radial blur name** (Radical blur)
+- Fixed a bug where the game could **crash when copying multiple objects**
+
 # v2.2.2
-## New logo (ignore patch)
-- Fix some **trigger sprites**
+## New logo (ignore patch 2)s
 - New **logo** (again)
 - Small changes
 - Updated **mod description**
+- Fixed some **trigger sprite**
 
 # v2.2.1
 ## Visual Refresh Patch

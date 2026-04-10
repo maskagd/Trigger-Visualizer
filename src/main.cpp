@@ -36,6 +36,22 @@ static void refreshLevelIcons() {
     }
 }
 
+static void applyDynamicToObjects(CCArray* objects) {
+    if (!objects) {
+        return;
+    }
+    if (!isModEnabled() || !s_dynamicReady || !getSwitchValue("dyn-enable")) {
+        return;
+    }
+
+    auto ds = TextureUtils::getDynamicSettings();
+    for (auto obj : CCArrayExt<GameObject*>(objects)) {
+        if (auto eff = typeinfo_cast<EffectGameObject*>(obj)) {
+            TextureUtils::applyDynamicUpdatesCached(eff, ds);
+        }
+    }
+}
+
 // change texture
 class $modify(MyEffectGameObject, EffectGameObject) {
     void customSetup() {
@@ -142,23 +158,16 @@ class $modify(ShowDynamic, EditorUI) {
         return obj;
     }
 
-    cocos2d::CCArray* pasteObjects(gd::string str, bool withColor, bool noUndo) {
-        auto arr = EditorUI::pasteObjects(str, withColor, noUndo);
-        if (!arr) {
-            return arr;
-        }
-        if (!isModEnabled() || !s_dynamicReady || !getSwitchValue("dyn-enable")) {
-            return arr;
-        }
-
-        auto ds = TextureUtils::getDynamicSettings();
-        for (auto obj : CCArrayExt<GameObject*>(arr)) {
-            if (auto eff = typeinfo_cast<EffectGameObject*>(obj)) {
-                TextureUtils::applyDynamicUpdatesCached(eff, ds);
-            }
-        }
-        return arr;
+    void onDuplicate(CCObject* sender) {
+        EditorUI::onDuplicate(sender);
+        applyDynamicToObjects(this->getSelectedObjects());
     }
+
+    void onPaste(CCObject* sender) {
+        EditorUI::onPaste(sender);
+        applyDynamicToObjects(this->getSelectedObjects());
+    }
+
 
     void onDeselectAll(CCObject* sender) {
         EditorUI::onDeselectAll(sender);
